@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shammy — Brand Identity System</title>
+<meta name="description" content="Shammy brand identity — logo system, colour, bilingual type, stationery, social and document templates. Break the Pattern · Dominate the Market.">
+<link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--shammy-font-latin);
+    color: var(--shammy-ink);
+    background: #ECE8DD;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body.lang-ar { font-family: var(--shammy-font-arabic); }
+  body.lang-ar .keep-latin { font-family: var(--shammy-font-latin); }
+
+  a { color: inherit; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+  @media (max-width: 640px){ .wrap { padding: 0 16px; } }
+
+  /* ---- Mark + wordmark ---- */
+  .mark { display: inline-flex; line-height: 0; flex: none; }
+  .mark svg { display: block; height: 100%; width: auto; }
+  .word { font-family: var(--shammy-font-latin); font-weight: 900; letter-spacing: -.03em; line-height: .85; }
+  .word .dot { color: var(--shammy-orange); }
+  .kicker { font-family: var(--shammy-font-latin); font-weight: 700; letter-spacing: .28em; text-transform: uppercase; color: var(--shammy-muted); }
+
+  @keyframes shammyPulse { 0%,100%{ transform: translate(0,0);} 50%{ transform: translate(2px,-2px);} }
+
+  /* ---- Top bar ---- */
+  header.bar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(243,240,231,.86); backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(20,32,27,.1);
+  }
+  .bar-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
+  .bar .brand { display: flex; align-items: center; gap: 12px; }
+  .bar .brand .mark { height: 26px; }
+  .bar .brand .word { font-size: 22px; color: var(--shammy-green); }
+  .controls { display: flex; align-items: center; gap: 8px; }
+  .seg { display: inline-flex; border: 1px solid rgba(20,32,27,.18); border-radius: 10px; padding: 3px; background: #fff; }
+  .seg button {
+    border: 0; background: transparent; cursor: pointer; font: 700 12px/1 var(--shammy-font-latin);
+    padding: 6px 12px; border-radius: 7px; color: var(--shammy-muted);
+  }
+  .seg button.active { background: var(--shammy-green); color: var(--shammy-cream); }
+  .seg button[data-lang="ar"]{ font-family: var(--shammy-font-arabic); }
+
+  /* ---- Hero ---- */
+  .hero { padding: 72px 0 36px; }
+  .hero .eyebrow { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .hero .eyebrow .l { font: 700 12px/1 var(--shammy-font-latin); letter-spacing: .4em; text-transform: uppercase; color: var(--shammy-muted); }
+  .hero .eyebrow .r { font: 700 12px/1 var(--shammy-font-latin); letter-spacing: .18em; text-transform: uppercase; color: var(--shammy-orange); }
+  .hero-lockup { display: flex; align-items: flex-end; gap: 26px; margin-top: 28px; flex-wrap: wrap; }
+  .hero-lockup .mark { height: 78px; }
+  .hero-lockup .word { font-size: clamp(54px, 9vw, 84px); color: var(--shammy-green); }
+  .hero-lockup .kicker { font-size: 13px; margin-top: 14px; }
+  .lede { margin-top: 28px; font: 400 clamp(16px,2.2vw,19px)/1.6 var(--shammy-font-latin); color: var(--shammy-body); max-width: 880px; }
+  body.lang-ar .lede { font-family: var(--shammy-font-arabic); }
+  .lede strong { color: var(--shammy-green); }
+  .three { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; margin-top: 36px; }
+  @media (max-width: 760px){ .three { grid-template-columns: 1fr; gap: 18px; } }
+  .three h4 { font: 900 13px/1 var(--shammy-font-latin); letter-spacing: .04em; text-transform: uppercase; color: var(--shammy-orange); margin: 0; }
+  .three p { font: 400 14px/1.62 var(--shammy-font-latin); color: var(--shammy-body); margin: 11px 0 0; }
+  body.lang-ar .three p { font-family: var(--shammy-font-arabic); }
+  .palette-strip { display: flex; margin-top: 36px; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+  .palette-strip span { height: 56px; }
+  .note { margin-top: 22px; display: flex; gap: 10px; background: rgba(255,122,30,.09); border-inline-start: 3px solid var(--shammy-orange); padding: 13px 16px; border-radius: 0 6px 6px 0; }
+  .note p { margin: 0; font: 400 13px/1.55 var(--shammy-font-latin); color: var(--shammy-body); }
+  body.lang-ar .note p { font-family: var(--shammy-font-arabic); }
+
+  /* ---- Section scaffolding ---- */
+  section.block { padding: 30px 0; }
+  .sec-head { margin-bottom: 22px; }
+  .sec-head .n { font: 900 24px/1 var(--shammy-font-latin); letter-spacing: -.01em; color: var(--shammy-green); }
+  .sec-head .d { font: 400 14px/1.5 var(--shammy-font-latin); color: var(--shammy-muted); margin-top: 7px; }
+  body.lang-ar .sec-head .d { font-family: var(--shammy-font-arabic); }
+
+  .grid { display: grid; gap: 18px; }
+  .g3 { grid-template-columns: repeat(3,1fr); }
+  .g2 { grid-template-columns: repeat(2,1fr); }
+  @media (max-width: 900px){ .g3 { grid-template-columns: 1fr; } }
+  @media (max-width: 720px){ .g2 { grid-template-columns: 1fr; } }
+
+  .card { background: var(--shammy-cream); border-radius: 8px; box-shadow: var(--shammy-shadow-card); overflow: hidden; }
+  .card.white { background: #fff; }
+  .cap { font: 600 12px/1 var(--shammy-font-latin); letter-spacing: .04em; color: rgba(20,32,27,.6); margin-bottom: 10px; }
+  .cap .rec { color: var(--shammy-orange); font-weight: 700; }
+  .blurb { font: 400 12.5px/1.5 var(--shammy-font-latin); color: var(--shammy-muted); margin: 12px 2px 0; }
+
+  /* lockup blocks inside cards */
+  .lock { display: flex; align-items: center; gap: 26px; padding: 46px 40px; }
+  .lock.stack { flex-direction: column; gap: 16px; text-align: center; }
+  .lock .word.lg { font-size: 50px; color: var(--shammy-green); }
+  .lock .kicker { font-size: 10.5px; margin-top: 11px; }
+  .lock.on-green { background: var(--shammy-green); }
+  .lock.on-green .word { color: var(--shammy-cream); }
+  .lock.on-green .kicker { color: var(--shammy-on-dark); }
+  .lock.on-orange { background: var(--shammy-orange); }
+  .lock.on-orange .word { color: var(--shammy-green); }
+  .lock.on-orange .word .dot { color: var(--shammy-cream); }
+  .lock.on-orange .kicker { color: var(--shammy-green); opacity: .72; }
+
+  /* monogram (Direction B) */
+  .mono-badge { width: 74px; height: 74px; border-radius: var(--shammy-radius-lg); background: var(--shammy-green); position: relative; flex: none; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .mono-badge span { font: 900 50px/1 var(--shammy-font-latin); color: var(--shammy-cream); letter-spacing: -.04em; }
+  .mono-badge i { position: absolute; inset-inline-end: -8px; bottom: 14px; width: 40px; height: 11px; background: var(--shammy-orange); transform: skewX(-24deg); border-radius: 2px; }
+  .mono-badge.inv { background: var(--shammy-cream); }
+  .mono-badge.inv span { color: var(--shammy-green); }
+  .mono-word { font: 900 40px/.9 var(--shammy-font-latin); letter-spacing: .02em; color: var(--shammy-green); }
+  .mono-sub { font: 700 10px/1 var(--shammy-font-latin); letter-spacing: .3em; text-transform: uppercase; color: var(--shammy-orange); margin-top: 9px; }
+
+  /* command line (Direction C) */
+  .cli { display: flex; align-items: center; gap: 18px; padding: 46px 40px; }
+  .cli .caret { font: 900 50px/1 var(--shammy-font-latin); color: var(--shammy-orange); }
+  .cli .word { font-size: 50px; color: var(--shammy-green); }
+  .cli .cursor { display: inline-block; width: 13px; height: 7px; background: var(--shammy-orange); margin-inline-start: 5px; }
+  .cli.on-green { background: var(--shammy-green); }
+  .cli.on-green .word { color: var(--shammy-cream); }
+
+  /* ---- Colour ---- */
+  .swatches { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-top: 14px; }
+  @media (max-width: 720px){ .swatches { grid-template-columns: repeat(2,1fr); } }
+  .sw .chip { height: 92px; border-radius: 6px; border: 1px solid rgba(20,32,27,.06); }
+  .sw .nm { font: 700 13px/1 var(--shammy-font-latin); color: var(--shammy-ink); margin-top: 10px; }
+  .sw .hx { font: 400 12px/1 var(--shammy-font-latin); color: var(--shammy-warm-grey); margin-top: 4px; }
+  .sub-label { font: 900 11px/1 var(--shammy-font-latin); letter-spacing: .16em; text-transform: uppercase; color: var(--shammy-green); margin: 26px 0 0; }
+  .sub-label span { color: var(--shammy-warm-grey); font-weight: 400; letter-spacing: 0; text-transform: none; }
+  .accents { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 16px; }
+  .accents .a { display: flex; align-items: center; gap: 9px; }
+  .accents .a .dot3 { width: 34px; height: 34px; border-radius: 50%; }
+
+  /* ---- Type ---- */
+  .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; }
+  @media (max-width: 720px){ .type-grid { grid-template-columns: 1fr; } }
+  .type-grid .sep { border-inline-end: 1px solid rgba(20,32,27,.1); padding-inline-end: 34px; }
+  @media (max-width: 720px){ .type-grid .sep { border: 0; padding: 0; } }
+  .face-head { display: flex; align-items: baseline; justify-content: space-between; }
+  .face-head b { font: 900 13px/1 var(--shammy-font-latin); letter-spacing: .04em; color: var(--shammy-green); }
+  .face-head em { font: 400 11px/1 var(--shammy-font-latin); color: var(--shammy-warm-grey); font-style: normal; }
+  .aa { font: 900 88px/.9 var(--shammy-font-latin); color: var(--shammy-ink); margin-top: 6px; }
+  .aa.ar { font-family: var(--shammy-font-arabic); font-size: 84px; line-height: 1; }
+  .weights { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+  .weights div { font-size: 16px; color: var(--shammy-body); }
+  .scale { margin-top: 24px; border-top: 1px solid rgba(20,32,27,.1); padding-top: 20px; display: flex; flex-direction: column; gap: 12px; }
+  .scale .row { display: flex; align-items: baseline; gap: 16px; }
+  .scale .row .lbl { width: 92px; flex: none; font: 400 11px/1 var(--shammy-font-latin); color: var(--shammy-warm-grey); }
+
+  /* ---- Cards / collateral generic ---- */
+  .biz { border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.1), 0 22px 48px -26px rgba(11,40,30,.6); aspect-ratio: 512/313; position: relative; overflow: hidden; }
+  .biz.front { background: var(--shammy-green); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+  .biz.back { background: var(--shammy-cream); padding: 30px 32px; display: flex; flex-direction: column; justify-content: space-between; }
+  .biz .ghost { position: absolute; opacity: .07; line-height: 0; }
+  .biz .ghost svg { width: 150px; }
+  .biz .name { font: 900 22px/1 var(--shammy-font-latin); color: var(--shammy-green); }
+  .biz .role { font: 700 9.5px/1 var(--shammy-font-latin); letter-spacing: .24em; text-transform: uppercase; color: var(--shammy-orange); margin-top: 7px; }
+  .biz .rule { height: 2px; width: 46px; background: var(--shammy-orange); border-radius: 2px; }
+  .biz .lines { display: flex; flex-direction: column; gap: 8px; }
+  .biz .lines .li { display: flex; align-items: center; gap: 10px; font: 400 13px/1 var(--shammy-font-latin); color: var(--shammy-ink); }
+  .biz .lines .li b { font-weight: 700; }
+  .biz .lines .li i { width: 6px; height: 6px; border-radius: 50%; background: var(--shammy-orange); flex: none; }
+  .biz.ar .name, .biz.ar .role { font-family: var(--shammy-font-arabic); }
+
+  .sheet { background: #fff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.1), 0 26px 60px -30px rgba(11,40,30,.5); aspect-ratio: 480/679; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  .sheet .hd { padding: 30px 34px 0; display: flex; align-items: flex-start; justify-content: space-between; }
+  .sheet .hd .word { font-size: 22px; color: var(--shammy-green); }
+  .sheet .hd .meta { text-align: end; font: 400 9.5px/1.7 var(--shammy-font-latin); color: var(--shammy-muted); }
+  .sheet .hd .meta b { color: var(--shammy-ink); }
+  .sheet .bar2 { height: 2px; background: var(--shammy-orange); margin: 18px 34px 0; }
+  .sheet .body { padding: 22px 34px 0; flex: 1; }
+  .sheet .foot { height: 6px; background: var(--shammy-green); }
+  .sheet .ghost { position: absolute; opacity: .05; line-height: 0; }
+  .sheet .ghost svg { width: 150px; }
+
+  /* email signature */
+  .sig { background: #fff; border-radius: 8px; box-shadow: var(--shammy-shadow-card); padding: 28px 30px; }
+  .sig .tile { width: 66px; height: 66px; border-radius: 14px; background: var(--shammy-green); flex: none; display: flex; align-items: center; justify-content: center; }
+  .sig .tile .mark { height: 35px; }
+  .sig-row { display: flex; align-items: center; gap: 18px; }
+  .sig .divider { width: 1px; align-self: stretch; background: var(--shammy-sand); margin: 4px 0; }
+  .sig .nm { font: 900 19px/1 var(--shammy-font-latin); color: var(--shammy-green); }
+  .sig .rl { font: 700 9px/1 var(--shammy-font-latin); letter-spacing: .2em; text-transform: uppercase; color: var(--shammy-orange); margin-top: 6px; }
+  .sig .ct { font: 400 12px/1.7 var(--shammy-font-latin); color: var(--shammy-ink); margin-top: 11px; }
+  pre.code { margin: 0; background: var(--shammy-ink); color: var(--shammy-on-dark); border-radius: 8px; padding: 22px 24px; overflow: auto; font: 400 11px/1.7 ui-monospace, Menlo, Consolas, monospace; }
+  pre.code .k { color: #fff; } pre.code .o { color: var(--shammy-orange); }
+
+  /* social */
+  .square { aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,.1), 0 20px 44px -26px rgba(11,40,30,.5); }
+  .square.green { background: var(--shammy-green); }
+  .square.pattern { background:
+      radial-gradient(circle at 78% 78%, rgba(255,122,30,.16), transparent 45%),
+      linear-gradient(135deg, #0E3A2C, #082A20); }
+  .square .ttl { position: absolute; top: 26px; inset-inline-start: 28px; font: 900 38px/.95 var(--shammy-font-latin); letter-spacing: -.02em; }
+  .square .sig2 { position: absolute; bottom: 24px; inset-inline-start: 28px; display: flex; align-items: center; gap: 9px; }
+  .square .sig2 .mark { height: 24px; } .square .sig2 .word { font-size: 17px; }
+  .avatar { width: 130px; height: 130px; display: flex; align-items: center; justify-content: center; }
+  .avatar .mark { height: 64px; }
+  .story { aspect-ratio: 9/16; border-radius: 8px; overflow: hidden; background: var(--shammy-green); padding: 26px 24px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,.1), 0 20px 44px -26px rgba(11,40,30,.6); }
+  .pill { align-self: flex-start; background: var(--shammy-orange); color: var(--shammy-green); font: 900 13px/1 var(--shammy-font-latin); padding: 12px 18px; border-radius: 30px; }
+  .banner { aspect-ratio: 4/1; border-radius: 8px; overflow: hidden; position: relative; background: var(--shammy-green); display: flex; align-items: center; padding: 0 48px; box-shadow: var(--shammy-shadow-card); }
+  .banner .ghost { position: absolute; inset-inline-end: -40px; top: 50%; transform: translateY(-50%); opacity: .08; line-height: 0; } .banner .ghost svg { width: 300px; }
+
+  /* documents */
+  .inv-row { display: flex; font: 400 11px/1 var(--shammy-font-latin); color: var(--shammy-ink); padding: 11px 12px; border-bottom: 1px solid var(--shammy-sand); }
+  .inv-head { background: var(--shammy-green); color: #fff; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-size: 8px; border: 0; border-radius: 3px; }
+  .tiles { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .tile-ico { border-radius: 17px; background: var(--shammy-green); display: flex; align-items: center; justify-content: center; }
+  .tile-ico.orange { background: var(--shammy-orange); }
+
+  /* footer */
+  footer.end { margin-top: 30px; background: var(--shammy-ink); color: var(--shammy-cream); }
+  footer.end .in { padding: 44px 0; }
+  footer.end h3 { font: 900 22px/1.1 var(--shammy-font-latin); margin: 0; }
+  footer.end p { font: 400 14px/1.7 var(--shammy-font-latin); color: var(--shammy-on-dark); margin: 14px 0 0; max-width: 640px; }
+  body.lang-ar footer.end p { font-family: var(--shammy-font-arabic); }
+  footer.end .li { display: flex; gap: 11px; align-items: flex-start; margin-top: 11px; }
+  footer.end .li i { width: 7px; height: 7px; border-radius: 50%; background: var(--shammy-orange); flex: none; margin-top: 7px; }
+  footer.end .li span { font: 400 13px/1.5 var(--shammy-font-latin); }
+  body.lang-ar footer.end .li span { font-family: var(--shammy-font-arabic); }
+  footer.end .contact { margin-top: 24px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.1); font: 400 12px/1 var(--shammy-font-latin); color: var(--shammy-muted); }
+</style>
+</head>
+<body class="lang-en">
+
+<header class="bar">
+  <div class="wrap bar-inner">
+    <a class="brand" href="#top" aria-label="Shammy">
+      <span class="mark" data-mark="green" data-w="28"></span>
+      <span class="word">shammy<span class="dot">.</span></span>
+    </a>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Language">
+        <button data-lang="en" class="active" type="button">EN</button>
+        <button data-lang="ar" type="button">ع</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<a id="top"></a>
+
+<!-- ===================== HERO / RATIONALE ===================== -->
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">
+      <div class="l" data-en="Brand Identity System" data-ar="نظام الهوية البصرية">Brand Identity System</div>
+      <div class="r keep-latin">v1 · exploration</div>
+    </div>
+    <div class="hero-lockup">
+      <span class="mark" data-mark="green" data-trail data-w="84" style="animation:none"></span>
+      <div>
+        <div class="word">shammy<span class="dot">.</span></div>
+        <div class="kicker" data-en="For IT Solutions" data-ar="لحلول تقنية المعلومات">For IT Solutions</div>
+      </div>
+    </div>
+    <p class="lede"
+       data-en="A complete identity for <strong>Shammy</strong> — a bespoke IT studio building applications, web platforms and UI/UX. The system runs on one idea: <strong>Break the Pattern · Dominate the Market.</strong>"
+       data-ar="هوية متكاملة لشركة <strong>شامي</strong> — استوديو تقنية معلومات يبني التطبيقات ومنصّات الويب وتجربة المستخدم. يقوم النظام على فكرة واحدة: <strong>اكسر النمط · سيطر على السوق.</strong>">
+       A complete identity for <strong>Shammy</strong> — a bespoke IT studio building applications, web platforms and UI/UX. The system runs on one idea: <strong>Break the Pattern · Dominate the Market.</strong>
+    </p>
+
+    <div class="three">
+      <div>
+        <h4 data-en="The idea" data-ar="الفكرة">The idea</h4>
+        <p data-en="One element refuses to conform and pulls ahead of the crowd — the standout node, a tidy grid where a single orange dot breaks rank."
+           data-ar="عنصر واحد يرفض الانصياع ويتقدّم على البقية — العقدة المتميّزة، شبكة منظّمة تخرج منها نقطة برتقالية واحدة عن الصف.">
+           One element refuses to conform and pulls ahead of the crowd — the standout node, a tidy grid where a single orange dot breaks rank.</p>
+      </div>
+      <div>
+        <h4 data-en="Colour" data-ar="اللون">Colour</h4>
+        <p data-en="<strong>Deep green</strong> for depth &amp; trust, <strong>vibrant orange</strong> for the breakout, on a warm <strong>cream</strong> base."
+           data-ar="<strong>الأخضر الداكن</strong> للعمق والثقة، و<strong>البرتقالي النابض</strong> للانطلاقة، على قاعدة <strong>كريمية</strong> دافئة.">
+           <strong>Deep green</strong> for depth &amp; trust, <strong>vibrant orange</strong> for the breakout, on a warm <strong>cream</strong> base.</p>
+      </div>
+      <div>
+        <h4 data-en="Type" data-ar="الخط">Type</h4>
+        <p data-en="<strong>Lato</strong> (Latin) + <strong>Cairo</strong> (Arabic) — the system runs bilingual EN / AR throughout."
+           data-ar="<strong>لاتو</strong> (لاتيني) + <strong>القاهرة</strong> (عربي) — يعمل النظام بلغتين، الإنجليزية والعربية، بالكامل.">
+           <strong>Lato</strong> (Latin) + <strong>Cairo</strong> (Arabic) — the system runs bilingual EN / AR throughout.</p>
+      </div>
+    </div>
+
+    <div class="palette-strip">
+      <span style="flex:2;background:#0E3A2C"></span>
+      <span style="flex:2;background:#082A20"></span>
+      <span style="flex:2;background:#FF7A1E"></span>
+      <span style="flex:1.4;background:#F3F0E7"></span>
+      <span style="flex:1.4;background:#E7E3D7"></span>
+      <span style="flex:1;background:#969487"></span>
+      <span style="flex:1;background:#16211C"></span>
+    </div>
+
+    <div class="note">
+      <p data-en="<strong>Note —</strong> Led with dark green + vibrant orange per the brief. Explore the logo directions, the full system and every asset below."
+         data-ar="<strong>ملاحظة —</strong> اعتُمد الأخضر الداكن والبرتقالي النابض حسب الإيجاز. استكشف اتجاهات الشعار والنظام الكامل وكل الأصول أدناه.">
+         <strong>Note —</strong> Led with dark green + vibrant orange per the brief. Explore the logo directions, the full system and every asset below.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 01 LOGO DIRECTIONS ===================== -->
+<section class="block"><div class="wrap">
+  <div class="sec-head">
+    <div class="n" data-en="01 — Logo directions" data-ar="٠١ — اتجاهات الشعار">01 — Logo directions</div>
+    <div class="d" data-en="Three takes on the wordmark + mark. A is the recommendation and drives the system below."
+         data-ar="ثلاث معالجات للشعار اللفظي والرمز. الاتجاه A هو التوصية وهو أساس النظام أدناه.">Three takes on the wordmark + mark. A is the recommendation and drives the system below.</div>
+  </div>
+  <div class="grid g3">
+    <div>
+      <div class="cap">A · Standout Node <span class="rec">★ recommended</span></div>
+      <div class="card">
+        <div class="lock"><span class="mark" data-mark="green" data-trail data-w="72"></span><div><div class="word lg">shammy<span class="dot">.</span></div><div class="kicker" data-en="For IT Solutions" data-ar="لحلول تقنية المعلومات">For IT Solutions</div></div></div>
+        <div class="lock on-green"><span class="mark" data-mark="cream" data-w="72"></span><div><div class="word lg">shammy<span class="dot">.</span></div><div class="kicker" data-en="For IT Solutions" data-ar="لحلول تقنية المعلومات">For IT Solutions</div></div></div>
+      </div>
+      <div class="blurb" data-en="Grid of nodes with one escaped orange dot — the brand idea made literal. Reads as pixels / data / network. Most ownable."
+           data-ar="شبكة عُقد تخرج منها نقطة برتقالية واحدة — الفكرة مجسّدة. تُقرأ كبكسلات وبيانات وشبكة. الأكثر تميّزًا.">Grid of nodes with one escaped orange dot — the brand idea made literal. Reads as pixels / data / network. Most ownable.</div>
+    </div>
+    <div>
+      <div class="cap">B · Forward Monogram</div>
+      <div class="card">
+        <div class="lock"><div class="mono-badge"><span>S</span><i></i></div><div><div class="mono-word">SHAMMY</div><div class="mono-sub">IT Solutions</div></div></div>
+        <div class="lock on-green"><div class="mono-badge inv"><span>S</span><i></i></div><div><div class="mono-word" style="color:var(--shammy-cream)">SHAMMY</div><div class="mono-sub">IT Solutions</div></div></div>
+      </div>
+      <div class="blurb" data-en="Container monogram with a forward orange slash — corporate, authoritative, doubles instantly as an app icon."
+           data-ar="مونوغرام داخل حاوية مع شَرطة برتقالية متّجهة للأمام — مؤسسي وواثق، ويصلح فورًا كأيقونة تطبيق.">Container monogram with a forward orange slash — corporate, authoritative, doubles instantly as an app icon.</div>
+    </div>
+    <div>
+      <div class="cap">C · Command Line</div>
+      <div class="card">
+        <div class="cli"><span class="caret">&rsaquo;</span><div class="word">shammy<span class="cursor"></span></div></div>
+        <div class="cli on-green"><span class="caret">&rsaquo;</span><div class="word">shammy<span class="cursor"></span></div></div>
+      </div>
+      <div class="blurb" data-en="A developer's prompt — the orange caret + cursor say &lsquo;ship it.&rsquo; Most literal to dev / IT."
+           data-ar="سطر أوامر المطوّر — المؤشّر البرتقالي يقول &lsquo;أطلِقه&rsquo;. الأقرب إلى عالم البرمجة وتقنية المعلومات.">A developer's prompt — the orange caret + cursor say &lsquo;ship it.&rsquo; Most literal to dev / IT.</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ===================== 02 LOGO SYSTEM ===================== -->
+<section class="block"><div class="wrap">
+  <div class="sec-head">
+    <div class="n" data-en="02 — Logo system" data-ar="٠٢ — نظام الشعار">02 — Logo system</div>
+    <div class="d" data-en="Built from Direction A. Lockups, reversed treatments, single-colour fallbacks, clear space and misuse."
+         data-ar="مبني على الاتجاه A. الأشكال، والمعالجات المعكوسة، والبدائل أحادية اللون، والمساحة الآمنة، وسوء الاستخدام.">Built from Direction A. Lockups, reversed treatments, single-colour fallbacks, clear space and misuse.</div>
+  </div>
+  <div class="grid g3">
+    <div><div class="cap" data-en="Primary · horizontal" data-ar="أساسي · أفقي">Primary · horizontal</div>
+      <div class="card" style="min-height:240px;display:flex;align-items:center;justify-content:center"><div class="lock"><span class="mark" data-mark="green" data-trail data-w="76"></span><div><div class="word lg" style="font-size:46px">shammy<span class="dot">.</span></div><div class="kicker" data-en="For IT Solutions" data-ar="لحلول تقنية المعلومات">For IT Solutions</div></div></div></div></div>
+    <div><div class="cap" data-en="Reversed · on deep green" data-ar="معكوس · على الأخضر">Reversed · on deep green</div>
+      <div class="card" style="background:var(--shammy-green);min-height:240px;display:flex;align-items:center;justify-content:center"><div class="lock"><span class="mark" data-mark="cream" data-w="76"></span><div><div class="word lg" style="font-size:46px;color:var(--shammy-cream)">shammy<span class="dot">.</span></div><div class="kicker" style="color:var(--shammy-on-dark)" data-en="For IT Solutions" data-ar="لحلول تقنية المعلومات">For IT Solutions</div></div></div></div></div>
+    <div><div class="cap" data-en="On orange" data-ar="على البرتقالي">On orange</div>
+      <div class="card on-orange" style="min-height:240px;display:flex;align-items:center;justify-content:center"><div class="lock on-orange stack"><span class="mark" data-mark="green" data-dot="#F3F0E7" data-w="64"></span><div><div class="word lg" style="font-size:40px">shammy<span class="dot">.</span></div><div class="kicker" data-en="For IT Solutions" data-ar="لحلول تقنية المعلومات">For IT Solutions</div></div></div></div></div>
+  </div>
+
+  <div class="grid g3" style="margin-top:18px">
+    <div><div class="cap" data-en="Single-colour" data-ar="أحادي اللون">Single-colour</div>
+      <div class="card" style="min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:24px">
+        <div style="display:flex;align-items:center;gap:14px"><span class="mark" data-mark="mono-green" data-w="44"></span><span class="word" style="font-size:30px;color:var(--shammy-green)">shammy.</span></div>
+        <div style="display:flex;align-items:center;gap:14px;background:var(--shammy-ink);padding:16px 20px;border-radius:6px"><span class="mark" data-mark="mono-cream" data-w="44"></span><span class="word" style="font-size:30px;color:var(--shammy-cream)">shammy.</span></div>
+      </div></div>
+    <div><div class="cap" data-en="Clear space &amp; minimum size" data-ar="المساحة الآمنة والحد الأدنى">Clear space &amp; minimum size</div>
+      <div class="card" style="min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px">
+        <div style="border:1.5px dashed var(--shammy-orange);padding:24px;border-radius:4px;display:flex;align-items:center;gap:14px"><span class="mark" data-mark="green" data-w="42"></span><span class="word" style="font-size:28px;color:var(--shammy-green)">shammy<span class="dot">.</span></span></div>
+        <div class="blurb" style="text-align:center;margin:0" data-en="Keep clear space ≥ X (the mark height) on every side. Minimum width 28 mm / 110 px."
+             data-ar="اترك مساحة آمنة ≥ X (ارتفاع الرمز) من كل جانب. أقل عرض ٢٨ مم / ١١٠ بكسل.">Keep clear space ≥ X (the mark height) on every side. Minimum width 28 mm / 110 px.</div>
+      </div></div>
+    <div><div class="cap" data-en="Don't" data-ar="تجنّب">Don't</div>
+      <div class="card" style="min-height:200px;display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px">
+        <div class="dont" data-label="stretch"><span class="word" style="font-size:22px;color:var(--shammy-green);transform:scaleX(1.7);display:inline-block">shammy.</span></div>
+        <div class="dont" data-label="recolour"><span class="word" style="font-size:22px;color:#0099ff">shammy.</span></div>
+        <div class="dont" data-label="rotate"><span class="word" style="font-size:20px;color:var(--shammy-green);transform:rotate(-13deg);display:inline-block">shammy.</span></div>
+        <div class="dont" data-label="FX / shadow" style="background:var(--shammy-warm-grey)"><span class="word" style="font-size:20px;color:var(--shammy-green);text-shadow:2px 2px 0 rgba(0,0,0,.4)">shammy.</span></div>
+      </div></div>
+  </div>
+</div></section>
+
+<!-- ===================== 03 COLOUR & TYPE ===================== -->
+<section class="block"><div class="wrap">
+  <div class="sec-head">
+    <div class="n" data-en="03 — Colour &amp; type" data-ar="٠٣ — اللون والخط">03 — Colour &amp; type</div>
+    <div class="d" data-en="Core brand colours, neutrals, extended UI accents, and the bilingual type scale."
+         data-ar="ألوان العلامة الأساسية، والمحايدة، ولمسات الواجهة الموسّعة، ومقياس الخط ثنائي اللغة.">Core brand colours, neutrals, extended UI accents, and the bilingual type scale.</div>
+  </div>
+  <div class="grid g2">
+    <div class="card white" style="padding:28px 30px">
+      <div class="sub-label" style="margin-top:0" data-en="Core" data-ar="أساسية">Core</div>
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#0E3A2C"></div><div class="nm">Deep Green</div><div class="hx">#0E3A2C · primary</div></div>
+        <div class="sw"><div class="chip" style="background:#082A20"></div><div class="nm">Forest</div><div class="hx">#082A20 · dark bg</div></div>
+        <div class="sw"><div class="chip" style="background:#FF7A1E"></div><div class="nm">Vibrant Orange</div><div class="hx">#FF7A1E · accent</div></div>
+        <div class="sw"><div class="chip" style="background:#16211C"></div><div class="nm">Ink</div><div class="hx">#16211C · text</div></div>
+      </div>
+      <div class="sub-label" data-en="Neutrals <span>— from the original guide</span>" data-ar="محايدة <span>— من الدليل الأصلي</span>">Neutrals <span>— from the original guide</span></div>
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="height:60px;background:#F3F0E7"></div><div class="nm">Cream</div><div class="hx">#F3F0E7</div></div>
+        <div class="sw"><div class="chip" style="height:60px;background:#E7E3D7"></div><div class="nm">Sand</div><div class="hx">#E7E3D7</div></div>
+        <div class="sw"><div class="chip" style="height:60px;background:#969487"></div><div class="nm">Warm Grey</div><div class="hx">#969487</div></div>
+        <div class="sw"><div class="chip" style="height:60px;background:#E7E7E9"></div><div class="nm">Cool Grey</div><div class="hx">#E7E7E9</div></div>
+      </div>
+      <div class="sub-label" data-en="Extended UI accents <span>— product / data-viz only</span>" data-ar="لمسات الواجهة <span>— للمنتج والبيانات فقط</span>">Extended UI accents <span>— product / data-viz only</span></div>
+      <div class="accents">
+        <div class="a"><div class="dot3" style="background:#0099FF"></div><div><div class="nm">Sky Blue</div><div class="hx">#0099FF</div></div></div>
+        <div class="a"><div class="dot3" style="background:#33FF99"></div><div><div class="nm">Aqua Green</div><div class="hx">#33FF99</div></div></div>
+        <div class="a"><div class="dot3" style="background:#150047"></div><div><div class="nm">Deep Indigo</div><div class="hx">#150047</div></div></div>
+      </div>
+    </div>
+
+    <div class="card white" style="padding:28px 30px">
+      <div class="type-grid">
+        <div class="sep">
+          <div class="face-head"><b>Lato</b><em data-en="Latin" data-ar="لاتيني">Latin</em></div>
+          <div class="aa">Aa</div>
+          <div class="weights">
+            <div style="font-weight:300" data-en="Light — break the pattern" data-ar="Light — break the pattern">Light — break the pattern</div>
+            <div style="font-weight:400" data-en="Regular — dominate the market" data-ar="Regular — dominate the market">Regular — dominate the market</div>
+            <div style="font-weight:700;color:var(--shammy-ink)" data-en="Bold — bespoke IT solutions" data-ar="Bold — bespoke IT solutions">Bold — bespoke IT solutions</div>
+            <div style="font-weight:900;color:var(--shammy-green)" data-en="Black — applications &amp; UI/UX" data-ar="Black — applications &amp; UI/UX">Black — applications &amp; UI/UX</div>
+          </div>
+        </div>
+        <div dir="rtl">
+          <div class="face-head" dir="ltr"><b>Cairo</b><em>Arabic · عربي</em></div>
+          <div class="aa ar">أبج</div>
+          <div class="weights" style="font-family:var(--shammy-font-arabic)">
+            <div style="font-weight:400">عادي — اكسر النمط</div>
+            <div style="font-weight:700;color:var(--shammy-ink)">عريض — حلول تقنية المعلومات</div>
+            <div style="font-weight:900;color:var(--shammy-green)">أسود — تطبيقات وتصميم</div>
+          </div>
+        </div>
+      </div>
+      <div class="scale">
+        <div class="row"><div class="lbl">Display / 76</div><div style="font:900 30px/1 var(--shammy-font-latin);letter-spacing:-.03em;color:var(--shammy-ink)">Break the Pattern</div></div>
+        <div class="row"><div class="lbl">Heading / 40</div><div style="font:700 22px/1 var(--shammy-font-latin);color:var(--shammy-ink)">Dominate the Market</div></div>
+        <div class="row"><div class="lbl">Body / 16</div><div style="font:400 15px/1.4 var(--shammy-font-latin);color:var(--shammy-body)">We design and build software that refuses to blend in.</div></div>
+        <div class="row"><div class="lbl">Caption / 11</div><div style="font:700 11px/1 var(--shammy-font-latin);letter-spacing:.28em;text-transform:uppercase;color:var(--shammy-orange)">For IT Solutions</div></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ===================== 04 BUSINESS CARD ===================== -->
+<section class="block"><div class="wrap">
+  <div class="sec-head">
+    <div class="n" data-en="04 — Business card" data-ar="٠٤ — بطاقة العمل">04 — Business card</div>
+    <div class="d" data-en="90 × 55 mm. Front &amp; back, English and Arabic. Name &amp; role are placeholders."
+         data-ar="٩٠ × ٥٥ مم. الوجه والظهر، بالإنجليزية والعربية. الاسم والمسمّى نموذجيان.">90 × 55 mm. Front &amp; back, English and Arabic. Name &amp; role are placeholders.</div>
+  </div>
+  <div class="grid g2">
+    <div><div class="cap">Front · EN</div>
+      <div class="biz front">
+        <span class="ghost" style="inset-inline-end:-30px;bottom:-34px"><span class="mark" data-mark="grid-cream"></span></span>
+        <span class="mark" data-mark="cream" data-w="62" style="z-index:1"></span>
+        <div style="text-align:center;z-index:1"><div class="word" style="font-size:40px;color:var(--shammy-cream)">shammy<span class="dot">.</span></div><div class="kicker" style="color:var(--shammy-on-dark);font-size:9.5px;margin-top:11px">For IT Solutions</div></div>
+      </div></div>
+    <div><div class="cap">Back · EN</div>
+      <div class="biz back">
+        <div style="display:flex;align-items:center;gap:12px"><span class="mark" data-mark="green" data-w="34"></span><span class="word" style="font-size:24px;color:var(--shammy-green)">shammy<span class="dot">.</span></span></div>
+        <div><div class="name">Your Name</div><div class="role">Founder · Lead Developer</div></div>
+        <div class="rule"></div>
+        <div class="lines"><div class="li"><i></i>+973 3306 9600</div><div class="li"><i></i>info@shammy.co</div><div class="li"><i></i><b>shammy.co</b></div></div>
+      </div></div>
+    <div><div class="cap">Front · AR · عربي</div>
+      <div class="biz front">
+        <span class="ghost" style="inset-inline-start:-30px;bottom:-34px"><span class="mark" data-mark="grid-cream"></span></span>
+        <span class="mark" data-mark="cream" data-w="62" style="z-index:1"></span>
+        <div dir="rtl" style="text-align:center;z-index:1"><div style="font:900 42px/1 var(--shammy-font-arabic);color:var(--shammy-cream)">شامي<span style="color:var(--shammy-orange)">.</span></div><div style="font:600 12px/1 var(--shammy-font-arabic);color:var(--shammy-on-dark);margin-top:8px">لحلول تقنية المعلومات</div></div>
+      </div></div>
+    <div><div class="cap">Back · AR · عربي</div>
+      <div class="biz back ar" dir="rtl">
+        <div style="display:flex;align-items:center;gap:12px"><span class="mark" data-mark="green" data-w="34"></span><span style="font:900 24px/1 var(--shammy-font-arabic);color:var(--shammy-green)">شامي<span style="color:var(--shammy-orange)">.</span></span></div>
+        <div><div class="name">اسمك هنا</div><div class="role">المؤسس · مطوّر رئيسي</div></div>
+        <div class="rule"></div>
+        <div class="lines"><div class="li"><i></i><span dir="ltr">+973 3306 9600</span></div><div class="li"><i></i><span dir="ltr">info@shammy.co</span></div><div class="li"><i></i><b dir="ltr">shammy.co</b></div></div>
+      </div></div>
+  </div>
+</div></section>
+
+<!-- ===================== 05 STATIONERY ===================== -->
+<section class="block"><div class="wrap">
+  <div class="sec-head">
+    <div class="n" data-en="05 — Stationery" data-ar="٠٥ — القرطاسية">05 — Stationery</div>
+    <div class="d" data-en="A4 letterhead (EN &amp; AR), DL envelope and a compliments slip."
+         data-ar="ترويسة A4 (إنجليزي وعربي)، ومغلّف DL، وبطاقة تحيات.">A4 letterhead (EN &amp; AR), DL envelope and a compliments slip.</div>
+  </div>
+  <div class="grid g3">
+    <div><div class="cap">Letterhead · EN</div>
+      <div class="sheet">
+        <div class="hd"><div style="display:flex;align-items:center;gap:11px"><span class="mark" data-mark="green" data-w="32"></span><span class="word" style="color:var(--shammy-green)">shammy<span class="dot">.</span></span></div><div class="meta">+973 3306 9600<br>info@shammy.co<br><b>shammy.co</b></div></div>
+        <div class="bar2"></div>
+        <div class="body">
+          <div style="font:400 9px/1 var(--shammy-font-latin);color:var(--shammy-warm-grey)">29 June 2026</div>
+          <div style="margin-top:16px;font:400 11px/1.4 var(--shammy-font-latin);color:var(--shammy-ink)"><span style="color:var(--shammy-warm-grey)">To</span> Client Name<br><span style="color:var(--shammy-warm-grey)">Re</span> <b>Project proposal — web platform</b></div>
+          <div style="margin-top:16px;font:400 10.5px/1.8 var(--shammy-font-latin);color:var(--shammy-body)">Dear Client,<br><br>Thank you for the opportunity to work together. At Shammy we design and build software that refuses to blend in — from applications and web platforms to the UI/UX around them.</div>
+          <div style="margin-top:18px;font:900 12px/1 var(--shammy-font-latin);color:var(--shammy-green)">Your Name</div>
+          <div style="font:700 8px/1 var(--shammy-font-latin);letter-spacing:.22em;text-transform:uppercase;color:var(--shammy-orange);margin-top:5px">Founder · Lead Developer</div>
+        </div>
+        <span class="ghost" style="inset-inline-end:-26px;bottom:24px"><span class="mark" data-mark="grid-green"></span></span>
+        <div style="text-align:center;font:400 8px/1 var(--shammy-font-latin);color:var(--shammy-warm-grey);padding:0 34px 12px;z-index:1">Manama, Kingdom of Bahrain · shammy.co</div>
+        <div class="foot"></div>
+      </div></div>
+    <div><div class="cap">Letterhead · AR · عربي</div>
+      <div class="sheet" dir="rtl">
+        <div class="hd"><div style="display:flex;align-items:center;gap:11px"><span class="mark" data-mark="green" data-w="32"></span><span style="font:900 22px/1 var(--shammy-font-arabic);color:var(--shammy-green)">شامي<span style="color:var(--shammy-orange)">.</span></span></div><div class="meta" dir="ltr">+973 3306 9600<br>info@shammy.co<br><b>shammy.co</b></div></div>
+        <div class="bar2"></div>
+        <div class="body" style="font-family:var(--shammy-font-arabic)">
+          <div style="font:400 9px/1 var(--shammy-font-arabic);color:var(--shammy-warm-grey)">٢٩ يونيو ٢٠٢٦</div>
+          <div style="margin-top:16px;font:400 11px/1.6 var(--shammy-font-arabic);color:var(--shammy-ink)"><span style="color:var(--shammy-warm-grey)">إلى</span> اسم العميل<br><span style="color:var(--shammy-warm-grey)">الموضوع</span> <b>عرض مشروع — منصّة ويب</b></div>
+          <div style="margin-top:16px;font:400 10.5px/1.9 var(--shammy-font-arabic);color:var(--shammy-body)">عزيزي العميل،<br><br>نشكركم على إتاحة الفرصة للعمل معًا. في شركة شامي نصمّم ونطوّر برمجيات ترفض أن تكون عادية — من التطبيقات ومنصّات الويب إلى تصميم تجربة المستخدم.</div>
+          <div style="margin-top:18px;font:900 12px/1 var(--shammy-font-arabic);color:var(--shammy-green)">اسمك هنا</div>
+          <div style="font:700 8.5px/1 var(--shammy-font-arabic);color:var(--shammy-orange);margin-top:5px">المؤسس · مطوّر رئيسي</div>
+        </div>
+        <span class="ghost" style="inset-inline-start:-26px;bottom:24px"><span class="mark" data-mark="grid-green"></span></span>
+        <div style="text-align:center;font:400 8px/1 var(--shammy-font-arabic);color:var(--shammy-warm-grey);padding:0 34px 12px;z-index:1">المنامة، مملكة البحرين · shammy.co</div>
+        <div class="foot"></div>
+      </div></div>
+    <div>
+      <div class="cap">DL envelope</div>
+      <div class="card" style="background:var(--shammy-cream);position:relative;overflow:hidden;padding:26px 28px;aspect-ratio:540/262">
+        <div style="display:flex;align-items:center;gap:11px"><span class="mark" data-mark="green" data-w="30"></span><div><div class="word" style="font-size:19px;color:var(--shammy-green)">shammy<span class="dot">.</span></div><div style="font:400 9px/1.5 var(--shammy-font-latin);color:var(--shammy-muted);margin-top:3px">Manama, Kingdom of Bahrain · shammy.co</div></div></div>
+        <div style="position:absolute;top:26px;inset-inline-end:28px;width:54px;height:60px;border:1.5px dashed var(--shammy-warm-grey);border-radius:3px;display:flex;align-items:center;justify-content:center;font:600 7px/1.3 var(--shammy-font-latin);color:var(--shammy-warm-grey)">STAMP</div>
+        <div style="position:absolute;inset-inline-start:150px;bottom:34px;display:flex;flex-direction:column;gap:10px"><div style="width:220px;height:9px;border-radius:5px;background:var(--shammy-sand)"></div><div style="width:180px;height:9px;border-radius:5px;background:var(--shammy-sand)"></div><div style="width:150px;height:9px;border-radius:5px;background:var(--shammy-sand)"></div></div>
+        <div style="position:absolute;left:0;right:0;bottom:0;height:6px;background:var(--shammy-orange)"></div>
+      </div>
+      <div class="cap" style="margin-top:18px">Compliments slip</div>
+      <div class="card" style="background:var(--shammy-green);position:relative;overflow:hidden;padding:28px 30px;aspect-ratio:540/210;display:flex;flex-direction:column;justify-content:space-between">
+        <span class="ghost" style="position:absolute;inset-inline-end:-30px;top:-20px;opacity:.07"><span class="mark" data-mark="grid-cream"></span></span>
+        <div style="font:300 italic 28px/1 var(--shammy-font-latin);color:var(--shammy-cream);z-index:1">With compliments<span style="color:var(--shammy-orange)">.</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;z-index:1"><div style="display:flex;align-items:center;gap:10px"><span class="mark" data-mark="cream" data-w="26"></span><div class="word" style="font-size:17px;color:var(--shammy-cream)">shammy<span class="dot">.</span></div></div><div style="font:400 10px/1 var(--shammy-font-latin);color:var(--shammy-on-dark)">+973 3306 9600 · shammy.co</div></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ===================== 06 EMAIL SIGNATURE ===================== -->
+<section class="block"><div class="wrap">
+  <div class="sec-head">
+    <div class="n" data-en="06 — Email signature" data-ar="٠٦ — توقيع البريد">06 — Email signature</div>
+    <div class="d" data-en="Rendered preview, a compact variant, and copy-ready table-based HTML for mail clients."
+         data-ar="معاينة، ونسخة مختصرة، وكود HTML جاهز للنسخ يعمل في برامج البريد.">Rendered preview, a compact variant, and copy-ready table-based HTML for mail clients.</div>
+  </div>
+  <div class="grid g2">
+    <div>
+      <div class="cap" data-en="Primary · in an email" data-ar="أساسي · في البريد">Primary · in an email</div>
+      <div class="sig">
+        <div style="font:400 13px/1.6 var(--shammy-font-latin);color:var(--shammy-body)">Best regards,</div>
+        <div style="height:16px"></div>
+        <div class="sig-row">
+          <div class="tile"><span class="mark" data-mark="cream" data-w="38"></span></div>
+          <div class="divider"></div>
+          <div>
+            <div class="nm">Your Name</div>
+            <div class="rl">Founder · Lead Developer | Shammy</div>
+            <div class="ct">+973 3306 9600 &nbsp;·&nbsp; info@shammy.co<br><b>shammy.co</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="cap" style="margin-top:18px">Compact</div>
+      <div class="sig" style="display:flex;align-items:center">
+        <div style="border-inline-start:3px solid var(--shammy-orange);padding-inline-start:18px">
+          <div style="display:flex;align-items:center;gap:9px"><span class="mark" data-mark="green" data-w="26"></span><div class="word" style="font-size:16px;color:var(--shammy-green)">shammy<span class="dot">.</span></div></div>
+          <div class="nm" style="font-size:16px;margin-top:14px">Your Name</div>
+          <div class="rl" style="font-size:8.5px">Founder · Lead Developer</div>
+          <div class="ct">+973 3306 9600<br>info@shammy.co<br><b>shammy.co</b></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="cap" data-en="Copy-ready HTML" data-ar="كود جاهز للنسخ">Copy-ready HTML</div>
+<pre class="code">&lt;<span class="o">table</span> cellpadding="0" cellspacing="0"
+  style="font-family:Lato,Arial,sans-serif"&gt;
+ &lt;tr&gt;
+  &lt;td style="padding-right:16px"&gt;
+   &lt;img src="shammy-tile.png" width="60" alt="Shammy"&gt;
+  &lt;/td&gt;
+  &lt;td style="border-left:1px solid #E7E3D7;
+    padding-left:16px"&gt;
+   &lt;div style="font-weight:900;font-size:18px;
+     color:#0E3A2C"&gt;<span class="k">Your Name</span>&lt;/div&gt;
+   &lt;div style="font-weight:700;font-size:9px;
+     letter-spacing:2px;color:#FF7A1E"&gt;<span class="o">FOUNDER · LEAD DEVELOPER</span>&lt;/div&gt;
+   &lt;div style="font-size:12px;color:#16211C;
+     padding-top:8px"&gt;
+     <span class="k">+973 3306 9600 · info@shammy.co</span>
+     &lt;br&gt;&lt;b&gt;<span class="k">shammy.co</span>&lt;/b&gt;
+   &lt;/div&gt;
+  &lt;/td&gt;
+ &lt;/tr&gt;
+&lt;/table&gt;</pre>
+    </div>
+  </div>
+</div></section>
+
+<!-- ===================== 07 SOCIAL KIT ===================== -->
+<section class="block"><div class="wrap">
+  <div class="sec-head">
+    <div class="n" data-en="07 — Social media kit" data-ar="٠٧ — حزمة التواصل الاجتماعي">07 — Social media kit</div>
+    <div class="d" data-en="Profile marks, feed posts, a story and a header. Hero imagery sits behind the on-brand pattern as a placeholder."
+         data-ar="صور الملف، ومنشورات، وقصة، وغلاف. صور البطل توضع خلف النمط كعنصر بديل.">Profile marks, feed posts, a story and a header. Hero imagery sits behind the on-brand pattern as a placeholder.</div>
+  </div>
+  <div class="grid g3">
+    <div>
+      <div class="cap" data-en="Profile" data-ar="الملف الشخصي">Profile</div>
+      <div class="card" style="display:flex;align-items:center;justify-content:center;gap:30px;padding:30px;min-height:240px">
+        <div class="avatar" style="border-radius:50%;background:var(--shammy-green)"><span class="mark" data-mark="cream" data-w="64"></span></div>
+        <div class="avatar" style="border-radius:34px;background:var(--shammy-orange)"><span class="mark" data-mark="green" data-dot="#F3F0E7" data-w="64"></span></div>
+      </div>
+    </div>
+    <div>
+      <div class="cap">Feed post · 1:1</div>
+      <div class="square pattern">
+        <div class="ttl" style="color:var(--shammy-cream)">Break the<br>Pattern<span style="color:var(--shammy-orange)">.</span></div>
+        <div class="sig2"><span class="mark" data-mark="cream" data-w="26"></span><div class="word" style="color:var(--shammy-cream)">shammy<span class="dot">.</span></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="cap">Feed post · 1:1</div>
+      <div class="square green">
+        <div class="ttl" style="color:var(--shammy-cream)">Dominate<br>the Market<span style="color:var(--shammy-orange)">.</span></div>
+        <div class="sig2"><span class="mark" data-mark="cream" data-w="26"></span><div class="word" style="color:var(--shammy-cream)">shammy<span class="dot">.</span></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="grid" style="grid-template-columns:300px 1fr;gap:18px;margin-top:18px;align-items:start">
+    <div style="max-width:300px">
+      <div class="cap">Story · 9:16</div>
+      <div class="story">
+        <div style="display:flex;align-items:center;gap:8px"><span class="mark" data-mark="cream" data-w="24"></span><div class="word" style="font-size:15px;color:var(--shammy-cream)">shammy<span class="dot">.</span></div></div>
+        <div style="font:900 30px/1 var(--shammy-font-latin);letter-spacing:-.02em;color:var(--shammy-cream);margin-top:24px">We don't<br>blend in<span style="color:var(--shammy-orange)">.</span></div>
+        <div style="margin-top:20px;border-radius:10px;flex:1;background:radial-gradient(circle at 70% 30%, rgba(255,122,30,.2), transparent 50%), #082A20"></div>
+        <div class="pill" style="margin-top:18px">shammy.co ›</div>
+      </div>
+    </div>
+    <div>
+      <div class="cap">LinkedIn / X header · 4:1</div>
+      <div class="banner">
+        <span class="ghost"><span class="mark" data-mark="cream"></span></span>
+        <div style="z-index:1">
+          <div style="display:flex;align-items:center;gap:16px"><span class="mark" data-mark="cream" data-w="52"></span><div class="word" style="font-size:clamp(28px,4vw,44px);color:var(--shammy-cream)">shammy<span class="dot">.</span></div></div>
+          <div style="font:700 13px/1 var(--shammy-font-latin);letter-spacing:.06em;color:var(--shammy-on-dark);margin-top:16px">Bespoke IT solutions · applications · web platforms · UI/UX</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ===================== 08 DOCUMENTS & APP ICON ===================== -->
+<section class="block"><div class="wrap">
+  <div class="sec-head">
+    <div class="n" data-en="08 — Documents &amp; app icon" data-ar="٠٨ — المستندات والأيقونة">08 — Documents &amp; app icon</div>
+    <div class="d" data-en="Invoice and proposal-cover templates, plus the favicon &amp; app-icon set."
+         data-ar="قوالب الفاتورة وغلاف العرض، إضافة إلى الأيقونة المفضّلة وأيقونة التطبيق.">Invoice and proposal-cover templates, plus the favicon &amp; app-icon set.</div>
+  </div>
+  <div class="grid g3">
+    <div><div class="cap">Invoice · A4</div>
+      <div class="sheet" style="aspect-ratio:480/679;padding:0">
+        <div style="padding:30px 32px;display:flex;flex-direction:column;height:100%">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div style="display:flex;align-items:center;gap:11px"><span class="mark" data-mark="green" data-w="30"></span><div class="word" style="font-size:20px;color:var(--shammy-green)">shammy<span class="dot">.</span></div></div>
+            <div style="text-align:end"><div style="font:900 24px/1 var(--shammy-font-latin);color:var(--shammy-green)">INVOICE</div><div style="font:400 9px/1.6 var(--shammy-font-latin);color:var(--shammy-warm-grey);margin-top:6px">#INV-0042<br>29 June 2026</div></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:24px;gap:20px">
+            <div><div style="font:700 7.5px/1 var(--shammy-font-latin);letter-spacing:.18em;text-transform:uppercase;color:var(--shammy-orange)">From</div><div style="font:700 10.5px/1.6 var(--shammy-font-latin);color:var(--shammy-ink);margin-top:6px">Shammy<br><span style="font-weight:400;color:var(--shammy-muted)">Manama, Bahrain<br>info@shammy.co</span></div></div>
+            <div style="text-align:end"><div style="font:700 7.5px/1 var(--shammy-font-latin);letter-spacing:.18em;text-transform:uppercase;color:var(--shammy-orange)">Bill to</div><div style="font:700 10.5px/1.6 var(--shammy-font-latin);color:var(--shammy-ink);margin-top:6px">Client Name<br><span style="font-weight:400;color:var(--shammy-muted)">Company Ltd.</span></div></div>
+          </div>
+          <div class="inv-row inv-head" style="margin-top:20px"><div style="flex:1">Description</div><div style="width:30px;text-align:center">Qty</div><div style="width:70px;text-align:end">Amount</div></div>
+          <div class="inv-row"><div style="flex:1">Web platform — design &amp; build</div><div style="width:30px;text-align:center">1</div><div style="width:70px;text-align:end">4,200.000</div></div>
+          <div class="inv-row"><div style="flex:1">UI/UX design system</div><div style="width:30px;text-align:center">1</div><div style="width:70px;text-align:end">1,500.000</div></div>
+          <div class="inv-row"><div style="flex:1">Mobile app — iOS &amp; Android</div><div style="width:30px;text-align:center">1</div><div style="width:70px;text-align:end">3,800.000</div></div>
+          <div style="margin-inline-start:auto;width:200px;font:400 10.5px/1 var(--shammy-font-latin);color:var(--shammy-ink);margin-top:14px">
+            <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:var(--shammy-muted)">Subtotal</span><span>9,500.000</span></div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:var(--shammy-muted)">VAT (10%)</span><span>950.000</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 12px;margin-top:6px;background:var(--shammy-orange);border-radius:3px;font-weight:900;color:var(--shammy-green)"><span>Total (BHD)</span><span>10,450.000</span></div>
+          </div>
+          <div style="margin-top:auto;padding-top:16px;border-top:1px solid var(--shammy-sand);font:400 9px/1.6 var(--shammy-font-latin);color:var(--shammy-warm-grey)">Payment due within 30 days · Benefit / bank transfer · Thank you for working with Shammy.</div>
+        </div>
+      </div></div>
+    <div><div class="cap">Proposal cover · A4</div>
+      <div class="sheet" style="background:var(--shammy-green);aspect-ratio:480/679;padding:40px;justify-content:space-between">
+        <span class="ghost" style="inset-inline-start:-50px;bottom:60px;opacity:.06"><span class="mark" data-mark="grid-cream"></span></span>
+        <div style="display:flex;align-items:center;gap:12px;z-index:1"><span class="mark" data-mark="cream" data-w="34"></span><div class="word" style="font-size:22px;color:var(--shammy-cream)">shammy<span class="dot">.</span></div></div>
+        <div style="z-index:1">
+          <div style="font:700 11px/1 var(--shammy-font-latin);letter-spacing:.32em;text-transform:uppercase;color:var(--shammy-orange)">Proposal</div>
+          <div style="font:900 clamp(40px,7vw,50px)/.95 var(--shammy-font-latin);letter-spacing:-.03em;color:var(--shammy-cream);margin-top:16px">Project<br>Proposal<span style="color:var(--shammy-orange)">.</span></div>
+          <div style="height:3px;width:60px;background:var(--shammy-orange);border-radius:2px;margin-top:22px"></div>
+          <div style="font:400 13px/1.7 var(--shammy-font-latin);color:var(--shammy-on-dark);margin-top:18px">Prepared for <b style="color:var(--shammy-cream)">Client Name</b><br>29 June 2026</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;z-index:1;font:400 10px/1 var(--shammy-font-latin);color:var(--shammy-on-dark)"><span>shammy.co</span><span>Confidential</span></div>
+      </div></div>
+    <div><div class="cap">Favicon &amp; app icon</div>
+      <div class="card white" style="padding:28px 30px;min-height:300px;display:flex;flex-direction:column;gap:22px">
+        <div>
+          <div style="background:var(--shammy-cool-grey);border-radius:8px 8px 0 0;padding:8px 8px 0;display:flex;align-items:flex-end">
+            <div style="background:#fff;border-radius:7px 7px 0 0;padding:8px 14px;display:flex;align-items:center;gap:8px"><span class="mark" data-mark="favicon" data-w="15"></span><span style="font:400 11px/1 var(--shammy-font-latin);color:var(--shammy-ink);white-space:nowrap">Shammy — IT Solutions</span></div>
+          </div>
+          <div style="background:#fff;border-radius:0 0 8px 8px;padding:8px 12px"><div style="background:var(--shammy-cool-grey);border-radius:20px;padding:5px 12px;font:400 10px/1 var(--shammy-font-latin);color:var(--shammy-muted);display:inline-block">🔒 shammy.co</div></div>
+        </div>
+        <div class="tiles">
+          <div class="tile-ico" style="width:74px;height:74px"><span class="mark" data-mark="cream" data-w="40"></span></div>
+          <div class="tile-ico orange" style="width:74px;height:74px"><span class="mark" data-mark="green" data-dot="#F3F0E7" data-w="40"></span></div>
+          <div class="tile-ico" style="width:50px;height:50px;border-radius:12px"><span class="mark" data-mark="cream" data-w="28"></span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="tile-ico" style="width:32px;height:32px;border-radius:8px"><span class="mark" data-mark="favicon" data-w="20"></span></div><div style="font:400 9px/1 var(--shammy-font-latin);color:var(--shammy-warm-grey)">16px</div></div>
+        </div>
+        <div class="blurb" style="margin:0" data-en="Full grid for ≥32 px tiles; at favicon sizes the mark simplifies to four nodes + the orange breakout so it stays crisp."
+             data-ar="الشبكة الكاملة لأحجام ≥٣٢ بكسل؛ وعند أحجام الأيقونة المصغّرة يبسّط الرمز إلى أربع عُقد + الانطلاقة البرتقالية ليبقى واضحًا.">Full grid for ≥32 px tiles; at favicon sizes the mark simplifies to four nodes + the orange breakout so it stays crisp.</div>
+      </div></div>
+  </div>
+</div></section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="end"><div class="wrap in">
+  <h3>Your turn<span style="color:var(--shammy-orange)">.</span></h3>
+  <p data-en="A complete starter system — logo, stationery, social, documents and icons, bilingual throughout. From here: lock a logo direction, export any asset as SVG / PNG / PDF, or extend into a pitch deck or product UI kit."
+     data-ar="نظام بدء متكامل — شعار وقرطاسية وتواصل ومستندات وأيقونات، بلغتين بالكامل. من هنا: اعتمد اتجاه الشعار، أو صدّر أي أصل بصيغة SVG / PNG / PDF، أو وسّعه إلى عرض تقديمي أو حزمة واجهة منتج.">A complete starter system — logo, stationery, social, documents and icons, bilingual throughout. From here: lock a logo direction, export any asset as SVG / PNG / PDF, or extend into a pitch deck or product UI kit.</p>
+  <div class="contact keep-latin">+973 3306 9600 &nbsp;·&nbsp; info@shammy.co &nbsp;·&nbsp; shammy.co &nbsp;·&nbsp; Manama, Kingdom of Bahrain</div>
+</div></footer>
+
+<style>
+  .dont { background: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; min-height: 78px; }
+  .dont::before { content: "✕"; position: absolute; top: 5px; inset-inline-end: 7px; width: 16px; height: 16px; border-radius: 50%; background: #C0392B; color: #fff; font: 700 11px/16px var(--shammy-font-latin); text-align: center; }
+  .dont::after { content: attr(data-label); position: absolute; bottom: 5px; left: 0; right: 0; text-align: center; font: 600 8.5px var(--shammy-font-latin); color: var(--shammy-warm-grey); }
+</style>
+
+<script>
+(function () {
+  // ---- Render the dot-grid mark wherever [data-mark] appears ----
+  var GRID = [[20,30],[48,30],[20,60],[48,60],[76,60],[20,90],[48,90],[76,90]];
+  function nodes(fill){ return GRID.map(function(p){ return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="9" fill="'+fill+'"/>'; }).join(''); }
+  function trail(){ return '<circle cx="92" cy="26" r="3" fill="#FF7A1E" opacity=".28"/><circle cx="100" cy="21" r="2.2" fill="#FF7A1E" opacity=".2"/>'; }
+
+  function build(el){
+    var kind = el.getAttribute('data-mark');
+    var dot = el.getAttribute('data-dot') || '#FF7A1E';
+    var w = parseFloat(el.getAttribute('data-w') || '60');
+    var hasTrail = el.hasAttribute('data-trail');
+    var nodeFill = '#0E3A2C', breakout = dot, svg;
+
+    if (kind === 'cream') nodeFill = '#F3F0E7';
+    else if (kind === 'mono-green') { nodeFill = '#0E3A2C'; breakout = '#0E3A2C'; }
+    else if (kind === 'mono-cream') { nodeFill = '#F3F0E7'; breakout = '#F3F0E7'; }
+    else if (kind === 'grid-green' || kind === 'grid-cream') {
+      // full 3×3 ghost grid (no breakout) for watermarks
+      var f = kind === 'grid-cream' ? '#F3F0E7' : '#0E3A2C';
+      var g = [[20,30],[48,30],[76,30],[20,60],[48,60],[76,60],[20,90],[48,90],[76,90]]
+        .map(function(p){ return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="9" fill="'+f+'"/>'; }).join('');
+      el.style.height = (w) + 'px';
+      el.innerHTML = '<svg viewBox="0 0 96 120" width="'+w+'" xmlns="http://www.w3.org/2000/svg">'+g+'</svg>';
+      return;
+    } else if (kind === 'favicon') {
+      el.style.height = (w * 120/130) + 'px';
+      el.innerHTML = '<svg viewBox="0 0 130 120" width="'+w+'" xmlns="http://www.w3.org/2000/svg">' +
+        '<g fill="#0E3A2C"><circle cx="34" cy="44" r="15"/><circle cx="72" cy="44" r="15"/><circle cx="34" cy="86" r="15"/><circle cx="72" cy="86" r="15"/></g>' +
+        '<circle cx="104" cy="22" r="18" fill="#FF7A1E"/></svg>';
+      return;
+    }
+
+    svg = '<svg viewBox="0 0 130 120" width="'+w+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Shammy mark">' +
+      nodes(nodeFill) + (hasTrail ? trail() : '') +
+      '<circle cx="110" cy="16" r="12" fill="'+breakout+'"/></svg>';
+    el.style.height = (w * 120/130) + 'px';
+    el.innerHTML = svg;
+  }
+  document.querySelectorAll('[data-mark]').forEach(build);
+
+  // ---- Bilingual EN / AR toggle with full RTL ----
+  var body = document.body, html = document.documentElement;
+  function setLang(lang){
+    var ar = lang === 'ar';
+    html.lang = lang; html.dir = ar ? 'rtl' : 'ltr';
+    body.classList.toggle('lang-ar', ar);
+    body.classList.toggle('lang-en', !ar);
+    document.querySelectorAll('[data-en]').forEach(function(el){
+      var v = el.getAttribute(ar ? 'data-ar' : 'data-en');
+      if (v != null) el.innerHTML = v;
+    });
+    document.querySelectorAll('.seg button[data-lang]').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+    });
+  }
+  document.querySelectorAll('.seg button[data-lang]').forEach(function(b){
+    b.addEventListener('click', function(){ setLang(b.getAttribute('data-lang')); });
+  });
+})();
+</script>
+</body>
+</html>

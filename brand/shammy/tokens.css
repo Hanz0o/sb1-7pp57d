@@ -1,0 +1,49 @@
+/* ============================================================================
+   Shammy — Brand design tokens
+   "Break the Pattern · Dominate the Market."
+   Source of truth for colour, type and spacing. Import anywhere.
+   ========================================================================== */
+:root {
+  /* --- Core ------------------------------------------------------------- */
+  --shammy-green: #0E3A2C;   /* primary */
+  --shammy-forest: #082A20;  /* dark background */
+  --shammy-orange: #FF7A1E;  /* accent / the breakout */
+  --shammy-ink: #16211C;     /* text */
+
+  /* --- Neutrals (from the original guide) ------------------------------- */
+  --shammy-cream: #F3F0E7;
+  --shammy-sand: #E7E3D7;
+  --shammy-warm-grey: #969487;
+  --shammy-cool-grey: #E7E7E9;
+
+  /* --- Supporting greens (UI text tints) -------------------------------- */
+  --shammy-body: #3A453E;        /* body copy on light */
+  --shammy-muted: #5C6B61;       /* muted on light */
+  --shammy-on-dark: #A9B8AE;     /* muted on dark green */
+
+  /* --- Extended UI accents (product / data-viz only) -------------------- */
+  --shammy-sky: #0099FF;
+  --shammy-aqua: #33FF99;
+  --shammy-indigo: #150047;
+
+  /* --- Type ------------------------------------------------------------- */
+  --shammy-font-latin: 'Lato', system-ui, Arial, sans-serif;
+  --shammy-font-arabic: 'Cairo', 'Lato', system-ui, sans-serif;
+
+  --shammy-w-light: 300;
+  --shammy-w-regular: 400;
+  --shammy-w-bold: 700;
+  --shammy-w-black: 900;
+
+  /* Type scale (px) */
+  --shammy-size-display: 76px;  /* 900, letter-spacing -.03em */
+  --shammy-size-heading: 40px;  /* 700 */
+  --shammy-size-body: 16px;     /* 400, line-height 1.6 */
+  --shammy-size-caption: 11px;  /* 700, letter-spacing .28em, uppercase, orange */
+
+  /* --- Radius & elevation ---------------------------------------------- */
+  --shammy-radius-sm: 4px;
+  --shammy-radius-md: 11px;
+  --shammy-radius-lg: 18px;
+  --shammy-shadow-card: 0 1px 3px rgba(0, 0, 0, .08), 0 18px 50px -22px rgba(11, 40, 30, .45);
+}

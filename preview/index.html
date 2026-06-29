@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preview launcher — Voya & Shammy</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; font-family: 'Inter', system-ui, sans-serif;
+    background: radial-gradient(circle at 20% 10%, #eef5ff, transparent 40%), #f6f7f9;
+    color: #0f1729; display: grid; place-items: center; padding: 32px;
+  }
+  .shell { width: 100%; max-width: 880px; }
+  h1 { font-size: 28px; font-weight: 800; margin: 0 0 6px; }
+  p.sub { color: #5f6e8f; margin: 0 0 28px; }
+  .cards { display: grid; gap: 18px; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 680px){ .cards { grid-template-columns: 1fr; } }
+  a.card {
+    text-decoration: none; color: inherit; border-radius: 18px; padding: 26px;
+    border: 1px solid #e6e9f0; box-shadow: 0 12px 40px -18px rgba(15,23,41,.25);
+    display: flex; flex-direction: column; gap: 12px; transition: transform .15s, box-shadow .15s;
+  }
+  a.card:hover { transform: translateY(-3px); box-shadow: 0 20px 50px -18px rgba(15,23,41,.35); }
+  .voya { background: linear-gradient(135deg,#fff, #eef5ff); }
+  .shammy { background: linear-gradient(135deg,#fff,#F3F0E7); }
+  .tag { font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+  .voya .tag { color: #1b4df5; } .shammy .tag { color: #FF7A1E; }
+  .card h2 { margin: 0; font-size: 22px; font-weight: 800; }
+  .card .d { color: #4a5675; font-size: 14px; line-height: 1.5; }
+  .go { margin-top: auto; font-weight: 700; font-size: 14px; }
+  .voya .go { color: #1b4df5; } .shammy .go { color: #0E3A2C; }
+  .note { margin-top: 22px; font-size: 12.5px; color: #8290ad; }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <h1>Live preview</h1>
+    <p class="sub">Two self-contained builds — open either; both run entirely in your browser.</p>
+    <div class="cards">
+      <a class="card voya" href="./voya.html">
+        <span class="tag">OTA marketplace</span>
+        <h2>Voya ✈</h2>
+        <span class="d">Search hotels & flights, transparent multi-currency pricing, cart, 3-D Secure checkout, My Trips, cancel/refund — and full Arabic RTL.</span>
+        <span class="go">Open Voya →</span>
+      </a>
+      <a class="card shammy" href="./shammy.html">
+        <span class="tag">Brand identity</span>
+        <h2>Shammy ●</h2>
+        <span class="d">Bilingual brand system — logo directions, colour, Lato + Cairo type, stationery, social and document templates. Toggle EN / ع.</span>
+        <span class="go">Open Shammy →</span>
+      </a>
+    </div>
+    <p class="note">Tip: Voya pulls Unsplash photos and Google Fonts — they load automatically on your machine (they were blocked in the build sandbox).</p>
+  </div>
+</body>
+</html>
