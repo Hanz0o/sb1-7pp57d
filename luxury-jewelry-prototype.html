@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<!--
+==================================================================================================
+  MASTER BLUEPRINT  ·  LUXURY JEWELRY HOUSE  ·  SINGLE-PAGE HTML PROTOTYPE
+==================================================================================================
+
+  PURPOSE OF THIS FILE
+  --------------------
+  This is a *self-contained*, framework-free HTML prototype that acts as the MASTER BLUEPRINT
+  for a future Next.js (App Router) luxury jewelry e-commerce platform targeting the Gulf market.
+
+  It is intentionally ONE file with EVERY UX section stacked vertically so that a stakeholder,
+  designer, or junior developer can scroll top-to-bottom and understand the ENTIRE architecture:
+  the brand experience, the page flow, the data model, and how each piece will map onto Next.js,
+  a CMS/Admin Panel, and an Inventory System.
+
+  WHY NO REACT / NEXT.JS HERE?
+  ----------------------------
+  A prototype's job is to lock down STRUCTURE, LAYOUT, UX, and ARCHITECTURE cheaply and quickly,
+  with zero build tooling. Tailwind via CDN gives us production-like styling with no compile step.
+  Once the structure is approved, each commented "section" below becomes a Next.js route / component.
+
+  HOW TO READ THIS FILE
+  ---------------------
+  Every major block is preceded by a LARGE comment explaining:
+    (1) WHY the section exists (UX / business reasoning)
+    (2) HOW it will later connect to Next.js (routing / layout / server components)
+    (3) HOW it will connect to the CMS / Admin Panel (who edits the content)
+    (4) HOW it will connect to the Inventory System (products, stock, pricing)
+    (5) HOW Dynamic Collections are driven from data, not hardcoded
+
+  NOTE ON INTERACTIVITY
+  ---------------------
+  A tiny amount of vanilla JavaScript at the bottom simulates the loader → landing → store flow
+  so the prototype is "clickable". In the real product, this behavior is replaced by Next.js
+  routing, React state, and layout groups. Every JS hook is clearly marked "PROTOTYPE ONLY".
+==================================================================================================
+-->
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maison d'Or · Luxury Jewelry House · Prototype Blueprint</title>
+
+  <!--
+  ================================================================================================
+    TAILWIND CSS via CDN
+    ------------------------------------------------------------------------------------------------
+    WHY CDN: zero build step, perfect for a prototype/blueprint.
+    IN NEXT.JS LATER: replace this CDN with the compiled Tailwind pipeline (tailwind.config.ts +
+    postcss). The `theme.extend` object below becomes your `tailwind.config.ts` theme — the brand
+    tokens (colors, fonts) live in ONE place so the Admin Panel / design system stays consistent.
+  ================================================================================================
+  -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // ------------------------------------------------------------------------------------------
+    // TAILWIND THEME CONFIG (Design Tokens)
+    // These tokens are the single source of truth for the brand identity.
+    // In Next.js this exact object moves into `tailwind.config.ts`.
+    // The CMS/Admin theme editor could later WRITE to these tokens to allow seasonal re-skinning.
+    // ------------------------------------------------------------------------------------------
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            burgundy: '#3e0c0f',   // Luxury Burgundy — primary brand color (deep, regal, Gulf-luxury)
+            gold: '#D4AF37',       // Gold — accent, CTAs, hairline dividers, foil-like details
+            ink: '#0a0708',        // Near-black background — makes gold + burgundy glow
+            'ink-soft': '#141011', // Slightly lifted panel background for cards/sections
+          },
+          fontFamily: {
+            // Elegant serif for headings (editorial, couture feel)
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            // Clean sans-serif for body (legibility, modern luxury)
+            sans: ['"Jost"', 'Helvetica', 'Arial', 'sans-serif'],
+          },
+          letterSpacing: {
+            luxe: '0.35em', // extreme tracking = couture logotype spacing
+          },
+        },
+      },
+    };
+  </script>
+
+  <!--
+    FONT LOADING
+    ------------------------------------------------------------------------------------------------
+    WHY: Typography carries 80% of a luxury brand's feel. We preconnect + load a serif (headings)
+    and a sans (body). In Next.js use `next/font` (self-hosted, zero layout shift, no CDN request).
+    FONT-DISPLAY: swap is used so text is never invisible; the loader (Section 1) hides any FOUT.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <!--
+    SMALL CUSTOM CSS
+    ------------------------------------------------------------------------------------------------
+    Tailwind covers 99% of styling. We add a handful of things Tailwind can't express cleanly:
+    keyframes for the loader shimmer, the fade transitions between "screens", and a gold gradient
+    text utility. In Next.js this goes into `globals.css`.
+  -->
+  <style>
+    /* Gold foil text effect for the wordmark */
+    .text-gold-foil {
+      background: linear-gradient(180deg, #f6e27a 0%, #D4AF37 45%, #a8842a 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Thin gold hairline divider — a classic couture detail */
+    .hairline {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+    }
+
+    /* Loader shimmer sweep */
+    @keyframes shimmer {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .animate-shimmer { animation: shimmer 1.8s ease-in-out infinite; }
+
+    /* Slow, subtle logo breathing for the loader */
+    @keyframes breathe {
+      0%, 100% { opacity: .55; letter-spacing: .35em; }
+      50%      { opacity: 1;   letter-spacing: .45em; }
+    }
+    .animate-breathe { animation: breathe 3s ease-in-out infinite; }
+
+    /* Generic screen fade — PROTOTYPE ONLY (Next.js will use route transitions) */
+    .screen { transition: opacity .8s ease, visibility .8s ease; }
+    .screen.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; height: 0; overflow: hidden; }
+
+    /* Card hover lift for luxury cards */
+    .lux-card { transition: transform .5s cubic-bezier(.2,.8,.2,1), box-shadow .5s ease; }
+    .lux-card:hover { transform: translateY(-6px); box-shadow: 0 25px 60px -20px rgba(212,175,55,.25); }
+  </style>
+</head>
+
+<!--
+  BODY
+  ================================================================================================
+  Near-black background + soft gold body text. `font-sans` is the default; headings opt into serif.
+  `antialiased` keeps the thin gold type crisp.
+  ================================================================================================
+-->
+<body class="bg-ink text-neutral-200 font-sans antialiased selection:bg-gold selection:text-ink">
+
+  <!--
+  ================================================================================================
+    SECTION 1 · BRAND LOADER
+    ================================================================================================
+    WHY IT EXISTS (UX / PSYCHOLOGY):
+      Luxury is about anticipation. A short, elegant loader creates a "threshold moment" — a beat
+      of ceremony before the brand reveals itself, exactly like the pause before opening a jewelry
+      box. It also serves a REAL technical purpose: it hides asset loading (hero video, large
+      imagery, fonts) so the first paint the customer sees is flawless, never janky.
+
+    WHAT IT WILL DO IN PRODUCTION:
+      - ASSET PRELOADING: preload the hero poster image + first collection covers.
+      - VIDEO LOADING: begin buffering the hero <video>; only dismiss loader on `canplaythrough`.
+      - FONT LOADING: use `document.fonts.ready` so serif/sans are painted before reveal.
+      - FIRST-VISIT LOGIC: show the full ceremonial loader ONLY on first visit
+        (persist a flag in localStorage / cookie). Returning visitors get a quick fade.
+
+    NEXT.JS CONNECTION:
+      - Implement as a Client Component `<BrandLoader/>` rendered in the (landing) layout.
+      - Use `next/font` (fonts already optimized) + a `useEffect` that awaits
+        Promise.all([fontsReady, videoCanPlay, minDisplayTime]).
+      - A `minDisplayTime` (e.g. 1200ms) guarantees the loader never "flickers" on fast connections.
+
+    JS HOOK (PROTOTYPE ONLY):
+      The element id="brand-loader" is faded out by the script at the bottom after a mock timeout.
+      Search for "LOADER CONTROL" below to see exactly where JavaScript should later take over.
+  ================================================================================================
+  -->
+  <div id="brand-loader"
+       class="screen fixed inset-0 z-[100] flex flex-col items-center justify-center bg-ink">
+    <!-- Brand mark placeholder (replace with SVG monogram asset) -->
+    <div class="mb-8 text-gold-foil font-serif text-5xl md:text-6xl animate-breathe">MO</div>
+
+    <!-- Wordmark -->
+    <p class="font-serif text-lg tracking-luxe text-gold/80 uppercase">Maison d&rsquo;Or</p>
+
+    <!-- Loading progress bar with gold shimmer sweep -->
+    <div class="relative mt-10 h-px w-52 overflow-hidden bg-white/10">
+      <div class="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-gold to-transparent animate-shimmer"></div>
+    </div>
+
+    <p class="mt-6 text-[11px] uppercase tracking-[0.3em] text-neutral-500">Preparing your experience</p>
+  </div>
+
+
+  <!--
+  ================================================================================================
+    SECTION 2 · FULLSCREEN LUXURY LANDING  (100vh HERO)
+    ================================================================================================
+    WHY NAVBAR + FOOTER ARE HIDDEN HERE (THE CORE UX PHILOSOPHY):
+      Traditional e-commerce dumps you into a grid of products and navigation. Luxury does the
+      OPPOSITE. The first screen is an *emotional brand statement*, not a store. By REMOVING the
+      navbar and footer we:
+        • Eliminate "shopping mode" cues — the customer feels like a guest, not a buyer.
+        • Force a single, intentional decision (two CTAs) instead of scattering attention.
+        • Signal exclusivity — you must "enter" the house, you don't browse aisles.
+      PSYCHOLOGICAL EFFECT: scarcity + ceremony + focus → higher perceived value, and paradoxically
+      HIGHER conversion, because the two CTAs each lead to a curated, high-intent path.
+
+    CONVERSION STRATEGY:
+      - Button 1 "Made-to-Order Jewelry" → the highest-margin, highest-intent bespoke funnel.
+      - Button 2 "Explore Collections" → the discovery funnel (Collection Hub, Section 3).
+      Two doors, both premium; no dead-end "add to cart" noise on the threshold.
+
+    MEDIA STRATEGY:
+      - Background <video> (muted, looped, playsinline) for motion + atmosphere.
+      - Fallback background IMAGE (poster) for slow connections / reduced-data / autoplay blocks.
+      - Burgundy overlay unifies any footage into the brand palette and guarantees text contrast.
+
+    NEXT.JS CONNECTION:
+      - This becomes `app/(landing)/page.tsx` inside a MINIMAL layout WITHOUT the store chrome.
+      - The (landing) route group has NO navbar/footer in its layout.tsx — that is the mechanism
+        that "hides" navigation. (See Section 7 + Section 9.)
+
+    CMS CONNECTION:
+      - Tagline, CTA labels, background video URL, and poster image are CMS-editable fields
+        ("Landing Hero" singleton document) so marketing can swap seasonal campaigns without a deploy.
+  ================================================================================================
+  -->
+  <section id="landing" class="screen relative h-screen w-full overflow-hidden">
+
+    <!-- BACKGROUND VIDEO PLACEHOLDER
+         In production: <video autoplay muted loop playsinline poster="[fallback]">.
+         Here we use a gradient + image to simulate footage without shipping a large file. -->
+    <video class="absolute inset-0 h-full w-full object-cover" autoplay muted loop playsinline
+           poster="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1920&q=80">
+      <!-- <source src="/media/hero.webm" type="video/webm"> real asset goes here -->
+    </video>
+
+    <!-- FALLBACK BACKGROUND IMAGE (shows if video fails / while buffering) -->
+    <div class="absolute inset-0 bg-cover bg-center"
+         style="background-image:url('https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1920&q=80')"></div>
+
+    <!-- BURGUNDY OVERLAY — ties any media to the brand + guarantees text legibility -->
+    <div class="absolute inset-0 bg-burgundy/70 mix-blend-multiply"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-ink/60"></div>
+
+    <!-- HERO CONTENT (perfectly centered, minimal, ceremonial) -->
+    <div class="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
+
+      <!-- LOGO PLACEHOLDER (swap for an SVG monogram) -->
+      <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-gold/50">
+        <span class="text-gold-foil font-serif text-2xl">MO</span>
+      </div>
+
+      <!-- BRAND NAME -->
+      <h1 class="font-serif text-5xl font-500 uppercase tracking-[0.25em] text-gold-foil md:text-7xl">
+        Maison d&rsquo;Or
+      </h1>
+
+      <!-- LUXURY TAGLINE (CMS-editable) -->
+      <p class="mt-6 max-w-xl font-serif text-lg italic text-neutral-100/90 md:text-2xl">
+        Jewelry composed for those who are remembered.
+      </p>
+
+      <div class="hairline my-9 w-24"></div>
+
+      <!-- TWO CTA BUTTONS — the only two decisions on the threshold -->
+      <div class="flex flex-col items-center gap-4 sm:flex-row">
+        <!-- CTA 1 · Bespoke funnel (highest margin) -->
+        <a href="#"
+           class="group inline-flex items-center gap-3 border border-gold bg-gold px-8 py-4 text-xs uppercase tracking-[0.25em] text-ink transition hover:bg-transparent hover:text-gold">
+          Made-to-Order Jewelry
+        </a>
+        <!-- CTA 2 · Discovery funnel → reveals the STORE experience (navbar/footer appear) -->
+        <button data-enter-store
+                class="group inline-flex items-center gap-3 border border-gold/60 px-8 py-4 text-xs uppercase tracking-[0.25em] text-gold transition hover:bg-gold hover:text-ink">
+          Explore Collections
+        </button>
+      </div>
+
+      <!-- Subtle scroll / enter hint -->
+      <p class="mt-16 text-[10px] uppercase tracking-[0.3em] text-neutral-400">Enter the House</p>
+    </div>
+  </section>
+
+
+  <!--
+  ================================================================================================
+    STORE EXPERIENCE WRAPPER
+    ================================================================================================
+    Everything below lives inside the "store" experience. It is hidden until the customer clicks
+    "Explore Collections". In Next.js this is the ENTIRE `app/(store)/...` route group, which has
+    its own layout containing the Navbar (Section 7) and Footer (Section 8).
+
+    PROTOTYPE ONLY: id="store" starts hidden and is revealed by JS. In production the customer
+    NAVIGATES to a /collections route and Next.js renders the (store) layout automatically.
+  ================================================================================================
+  -->
+  <div id="store" class="screen is-hidden">
+
+    <!--
+    ============================================================================================
+      SECTION 7 (placed high because it is CHROME) · STORE NAVBAR
+      ============================================================================================
+      WHY IT LIVES IN THE STORE LAYOUT, NOT THE LANDING:
+        The navbar is a "shopping tool". Showing it on the landing screen would break the
+        ceremonial, no-pressure threshold. It only appears once the customer has CHOSEN to enter.
+
+      LAYOUT SWITCHING ARCHITECTURE (the key idea):
+        We have TWO layouts:
+          • LANDING LAYOUT  → no navbar, no footer (immersive brand)
+          • STORE LAYOUT    → navbar + footer + cart (functional commerce)
+        Switching between them is not a CSS toggle in production — it is a ROUTE GROUP boundary.
+
+      NEXT.JS CONNECTION (Route Groups):
+        app/
+          (landing)/layout.tsx   ← renders {children} only (bare)
+          (store)/layout.tsx      ← renders <Navbar/> {children} <Footer/>
+        Route groups `(landing)` and `(store)` do NOT affect the URL, but they let two totally
+        different layouts coexist. Moving from `/` to `/collections` crosses the boundary and
+        Next.js swaps the layout for you — that is the real "navbar appears" mechanism.
+
+      CMS CONNECTION:
+        Nav links (Collections, Filmora, Bespoke, About) come from a CMS "Navigation" document so
+        merchandisers can reorder/rename them. The cart count comes from client cart state.
+    ============================================================================================
+    -->
+    <header class="sticky top-0 z-50 border-b border-gold/15 bg-ink/85 backdrop-blur-md">
+      <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <!-- Left: brand mark (click returns to landing in prototype) -->
+        <button data-back-landing class="text-gold-foil font-serif text-xl tracking-[0.2em]">
+          Maison d&rsquo;Or
+        </button>
+
+        <!-- Center: primary nav (CMS-driven in production) -->
+        <ul class="hidden items-center gap-9 text-[11px] uppercase tracking-[0.22em] text-neutral-300 md:flex">
+          <li><a href="#collection-hub" class="transition hover:text-gold">Collections</a></li>
+          <li><a href="#filmora" class="transition hover:text-gold">Filmora</a></li>
+          <li><a href="#shop-flow" class="transition hover:text-gold">Shop</a></li>
+          <li><a href="#" class="transition hover:text-gold">Bespoke</a></li>
+          <li><a href="#footer" class="transition hover:text-gold">About</a></li>
+        </ul>
+
+        <!-- Right: utility icons (search / account / cart) -->
+        <div class="flex items-center gap-6 text-neutral-300">
+          <button aria-label="Search" class="transition hover:text-gold">&#9906;</button>
+          <button aria-label="Account" class="transition hover:text-gold">&#9737;</button>
+          <!-- CART — count is bound to client cart state / inventory reservation -->
+          <a href="#cart" class="relative transition hover:text-gold" aria-label="Cart">
+            &#9739;
+            <span class="absolute -right-3 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[9px] font-bold text-ink">2</span>
+          </a>
+        </div>
+      </nav>
+    </header>
+
+
+    <!--
+    ============================================================================================
+      SECTION 3 · COLLECTION HUB
+      ============================================================================================
+      WHY THE COLLECTION HUB EXISTS:
+        Instead of dropping customers into a giant undifferentiated product grid, the Hub asks:
+        "How would you like to discover us?" This is INTENT ROUTING. Each card represents a
+        different mental model of shopping:
+          • Shop                → "I know I want to browse everything / filter."
+          • Filmora Collection  → "Show me the flagship editorial story."
+          • Featured Collection → "Show me what the house is spotlighting now."
+          • Campaign Collections→ "Show me the current seasonal campaign (Eid, Ramadan...)."
+          • Occasion Collections→ "I'm shopping for a moment (wedding, anniversary...)."
+
+      WHY CHOOSE A COLLECTION BEFORE THE SHOP (PRODUCT DISCOVERY):
+        A pre-filtered entry point drastically reduces choice overload. In a boutique, a host asks
+        what you're looking for before showing you cases of jewelry. The Hub is that host. It turns
+        an overwhelming catalog into a curated, guided journey → better discovery, higher AOV,
+        lower bounce.
+
+      NEXT.JS CONNECTION:
+        `app/(store)/collections/page.tsx` — a Server Component that fetches the list of collection
+        "entry points". Each card links to a dynamic route (see Section 5).
+
+      CMS / INVENTORY CONNECTION:
+        The Hub cards themselves are configured in the Admin Panel ("Collection Hub" ordering).
+        Each card's cover image + title come from the Collection document; product counts come from
+        the Inventory System (how many in-stock items belong to that collection).
+    ============================================================================================
+    -->
+    <section id="collection-hub" class="mx-auto max-w-7xl px-6 py-24">
+      <!-- Section header -->
+      <div class="mb-14 text-center">
+        <p class="text-[11px] uppercase tracking-[0.35em] text-gold">The House</p>
+        <h2 class="mt-3 font-serif text-4xl text-neutral-100 md:text-5xl">Choose Your Journey</h2>
+        <div class="hairline mx-auto mt-6 w-24"></div>
+        <p class="mx-auto mt-6 max-w-xl text-sm text-neutral-400">
+          Every path is curated. Begin where your story begins.
+        </p>
+      </div>
+
+      <!-- HUB CARD GRID -->
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+        <!-- CARD 1 · SHOP (the "browse everything" entry, opens the filtered shop) -->
+        <a href="#shop-flow" class="lux-card group relative col-span-1 overflow-hidden rounded-sm border border-gold/15 bg-ink-soft lg:col-span-2">
+          <div class="aspect-[16/9] w-full overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=1200&q=80"
+                 alt="Shop all jewelry" class="h-full w-full object-cover opacity-80 transition duration-700 group-hover:scale-105 group-hover:opacity-100" />
+          </div>
+          <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent"></div>
+          <div class="absolute bottom-0 p-8">
+            <h3 class="font-serif text-3xl text-neutral-50">Shop</h3>
+            <p class="mt-2 text-sm text-neutral-300">The complete collection — filter by metal, stone & occasion.</p>
+          </div>
+        </a>
+
+        <!-- CARD 2 · FILMORA COLLECTION (custom editorial — see Section 6) -->
+        <a href="#filmora" class="lux-card group relative overflow-hidden rounded-sm border border-gold/25 bg-ink-soft">
+          <div class="aspect-[4/5] w-full overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=900&q=80"
+                 alt="Filmora Collection" class="h-full w-full object-cover opacity-80 transition duration-700 group-hover:scale-105 group-hover:opacity-100" />
+          </div>
+          <div class="absolute inset-0 bg-gradient-to-t from-burgundy via-ink/30 to-transparent"></div>
+          <div class="absolute bottom-0 p-8">
+            <p class="text-[10px] uppercase tracking-[0.3em] text-gold">Flagship</p>
+            <h3 class="mt-1 font-serif text-3xl text-neutral-50">Filmora</h3>
+          </div>
+        </a>
+
+        <!-- CARD 3 · FEATURED COLLECTION -->
+        <a href="#dynamic-collections" class="lux-card group relative overflow-hidden rounded-sm border border-gold/15 bg-ink-soft">
+          <div class="aspect-[4/5] w-full overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=900&q=80"
+                 alt="Featured Collection" class="h-full w-full object-cover opacity-80 transition duration-700 group-hover:scale-105 group-hover:opacity-100" />
+          </div>
+          <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent"></div>
+          <div class="absolute bottom-0 p-8">
+            <p class="text-[10px] uppercase tracking-[0.3em] text-gold">Curated</p>
+            <h3 class="mt-1 font-serif text-3xl text-neutral-50">Featured</h3>
+          </div>
+        </a>
+
+        <!-- CARD 4 · CAMPAIGN COLLECTIONS (seasonal: Eid, Ramadan...) -->
+        <a href="#dynamic-collections" class="lux-card group relative overflow-hidden rounded-sm border border-gold/15 bg-ink-soft">
+          <div class="aspect-[4/5] w-full overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?auto=format&fit=crop&w=900&q=80"
+                 alt="Campaign Collections" class="h-full w-full object-cover opacity-80 transition duration-700 group-hover:scale-105 group-hover:opacity-100" />
+          </div>
+          <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent"></div>
+          <div class="absolute bottom-0 p-8">
+            <p class="text-[10px] uppercase tracking-[0.3em] text-gold">Seasonal</p>
+            <h3 class="mt-1 font-serif text-3xl text-neutral-50">Campaigns</h3>
+          </div>
+        </a>
+
+        <!-- CARD 5 · OCCASION COLLECTIONS (wedding, anniversary...) -->
+        <a href="#dynamic-collections" class="lux-card group relative overflow-hidden rounded-sm border border-gold/15 bg-ink-soft">
+          <div class="aspect-[4/5] w-full overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=80"
+                 alt="Occasion Collections" class="h-full w-full object-cover opacity-80 transition duration-700 group-hover:scale-105 group-hover:opacity-100" />
+          </div>
+          <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent"></div>
+          <div class="absolute bottom-0 p-8">
+            <p class="text-[10px] uppercase tracking-[0.3em] text-gold">For the Moment</p>
+            <h3 class="mt-1 font-serif text-3xl text-neutral-50">Occasions</h3>
+          </div>
+        </a>
+      </div>
+    </section>
+
+
+    <!--
+    ============================================================================================
+      SECTION 4 · DYNAMIC COLLECTION SYSTEM
+      ============================================================================================
+      THE MOST IMPORTANT ARCHITECTURAL CONCEPT IN THIS FILE:
+        THESE COLLECTIONS ARE **NOT HARDCODED**. Every card below is a row in a `collections`
+        database table, created and managed entirely from the Admin Panel. The frontend simply
+        maps over whatever the API returns. If marketing adds a "National Day Collection"
+        tomorrow at 2pm, it appears on the site instantly with NO code change and NO deploy.
+
+      WHAT THE ADMIN CREATES PER COLLECTION (the CMS schema):
+        - name        : "Eid Collection"            (display title)
+        - slug        : "eid"                        (URL segment → /collections/eid)
+        - coverImage  : uploaded asset              (card + hero background)
+        - description : rich text                    (SEO + collection page intro)
+        - sortOrder   : integer                      (controls the order of cards below)
+        - type        : featured | campaign | occasion  (drives which Hub bucket it appears in)
+        - isActive    : boolean / publish dates      (schedule Ramadan to auto-appear & auto-retire)
+
+      DATABASE RELATIONSHIP CONCEPTS (why this is clean & scalable):
+        products  ⇄  collections   is a MANY-TO-MANY relationship.
+          - One product (e.g. "Aurora Ring") can belong to MANY collections (Featured + Eid).
+          - One collection contains MANY products.
+        Implemented via a JOIN TABLE: `collection_products (collection_id, product_id, position)`.
+        Because it's many-to-many, admins re-merchandise freely without duplicating product data.
+        `featured` is often ALSO expressible as a simple boolean flag on the product for the
+        homepage rail (see Section 10), while richer groupings use the collections table.
+
+      NEXT.JS CONNECTION:
+        - This grid is rendered by a Server Component that calls `getCollections()`.
+        - Each card links to `/collections/[slug]` — a DYNAMIC ROUTE. `[slug]` matches whatever
+          the admin typed, so new collections are automatically routable.
+        - Use `generateStaticParams()` to pre-render known collections (ISR) for speed, with
+          on-demand revalidation triggered by a CMS webhook when an admin publishes changes.
+
+      INVENTORY CONNECTION:
+        Each card can show a live "X pieces" count and hide sold-out collections, because the
+        product membership + stock levels come from the Inventory System (Section 10).
+    ============================================================================================
+    -->
+    <section id="dynamic-collections" class="border-y border-gold/10 bg-ink-soft/40 py-24">
+      <div class="mx-auto max-w-7xl px-6">
+        <div class="mb-14 text-center">
+          <p class="text-[11px] uppercase tracking-[0.35em] text-gold">Dynamic · CMS-Driven</p>
+          <h2 class="mt-3 font-serif text-4xl text-neutral-100 md:text-5xl">Collections</h2>
+          <p class="mx-auto mt-6 max-w-2xl text-sm text-neutral-400">
+            Every collection below is created in the Admin Panel — name, slug, cover, description &
+            sort order. The site renders them dynamically. Nothing here is hardcoded.
+          </p>
+        </div>
+
+        <!-- DYNAMIC GRID
+             In production: {collections.map(c => <CollectionCard key={c.id} {...c} />)}
+             Below are STATIC EXAMPLES simulating six admin-created documents. -->
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+          <!-- data-collection attributes below mimic the fields the API would return -->
+
+          <!-- Featured Collection · type=featured · slug=featured · sortOrder=1 -->
+          <a href="#shop-flow" data-slug="featured" data-type="featured" data-sort="1"
+             class="lux-card group relative overflow-hidden rounded-sm border border-gold/15 bg-ink">
+            <div class="aspect-[3/4] overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=800&q=80"
+                   alt="Featured Collection" class="h-full w-full object-cover opacity-80 transition duration-700 group-hover:scale-105" />
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-ink to-transparent"></div>
+            <div class="absolute bottom-0 p-6">
+              <p class="text-[10px] uppercase tracking-[0.3em] text-gold">Featured</p>
+              <h3 class="mt-1 font-serif text-2xl text-neutral-50">The Signature Edit</h3>
+              <p class="mt-1 text-xs text-neutral-400">/collections/featured</p>
+            </div>
+          </a>
+
+          <!-- Eid Collection · type=campaign · slug=eid · sortOrder=2 -->
+          <a href="#shop-flow" data-slug="eid" data-type="campaign" data-sort="2"
+             class="lux-card group relative overflow-hidden rounded-sm border border-gold/15 bg-ink">
+            <div class="aspect-[3/4] overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1573408301185-9146fe634ad0?auto=format&fit=crop&w=800&q=80"
+                   alt="Eid Collection" class="h-full w-full object-cover opacity-80 transition duration-700 group-hover:scale-105" />
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-burgundy to-transparent"></div>
+            <div class="absolute bottom-0 p-6">
+              <p class="text-[10px] uppercase tracking-[0.3em] text-gold">Campaign</p>
+              <h3 class="mt-1 font-serif text-2xl text-neutral-50">Eid Collection</h3>
+              <p class="mt-1 text-xs text-neutral-400">/collections/eid</p>
+            </div>
+          </a>
+
+          <!-- Wedding Collection · type=occasion · slug=wedding · sortOrder=3 -->
+          <a href="#shop-flow" data-slug="wedding" data-type="occasion" data-sort="3"
+             class="lux-card group relative overflow-hidden rounded-sm border border-gold/15 bg-ink">
+            <div class="aspect-[3/4] overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?auto=format&fit=crop&w=800&q=80"
+                   alt="Wedding Collection" class="h-full w-full object-cover opacity-80 transition duration-700 group-hover:scale-105" />
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-ink to-transparent"></div>
+            <div class="absolute bottom-0 p-6">
+              <p class="text-[10px] uppercase tracking-[0.3em] text-gold">Occasion</p>
+              <h3 class="mt-1 font-serif text-2xl text-neutral-50">Wedding Collection</h3>
+              <p class="mt-1 text-xs text-neutral-400">/collections/wedding</p>
+            </div>
+          </a>
+
+          <!-- Ramadan Collection · type=campaign · slug=ramadan · sortOrder=4 -->
+          <a href="#shop-flow" data-slug="ramadan" data-type="campaign" data-sort="4"
+             class="lux-card group relative overflow-hidden rounded-sm border border-gold/15 bg-ink">
+            <div class="aspect-[3/4] overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1610694955371-d4a3e0ce4b52?auto=format&fit=crop&w=800&q=80"
+                   alt="Ramadan Collection" class="h-full w-full object-cover opacity-80 transition duration-700 group-hover:scale-105" />
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-burgundy to-transparent"></div>
+            <div class="absolute bottom-0 p-6">
+              <p class="text-[10px] uppercase tracking-[0.3em] text-gold">Campaign</p>
+              <h3 class="mt-1 font-serif text-2xl text-neutral-50">Ramadan Collection</h3>
+              <p class="mt-1 text-xs text-neutral-400">/collections/ramadan</p>
+            </div>
+          </a>
+
+          <!-- Mother's Day Collection · type=occasion · slug=mothers-day · sortOrder=5 -->
+          <a href="#shop-flow" data-slug="mothers-day" data-type="occasion" data-sort="5"
+             class="lux-card group relative overflow-hidden rounded-sm border border-gold/15 bg-ink">
+            <div class="aspect-[3/4] overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80"
+                   alt="Mother's Day Collection" class="h-full w-full object-cover opacity-80 transition duration-700 group-hover:scale-105" />
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-ink to-transparent"></div>
+            <div class="absolute bottom-0 p-6">
+              <p class="text-[10px] uppercase tracking-[0.3em] text-gold">Occasion</p>
+              <h3 class="mt-1 font-serif text-2xl text-neutral-50">Mother&rsquo;s Day</h3>
+              <p class="mt-1 text-xs text-neutral-400">/collections/mothers-day</p>
+            </div>
+          </a>
+
+          <!-- Anniversary Collection · type=occasion · slug=anniversary · sortOrder=6 -->
+          <a href="#shop-flow" data-slug="anniversary" data-type="occasion" data-sort="6"
+             class="lux-card group relative overflow-hidden rounded-sm border border-gold/15 bg-ink">
+            <div class="aspect-[3/4] overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1602173574767-37ac01994b2a?auto=format&fit=crop&w=800&q=80"
+                   alt="Anniversary Collection" class="h-full w-full object-cover opacity-80 transition duration-700 group-hover:scale-105" />
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-ink to-transparent"></div>
+            <div class="absolute bottom-0 p-6">
+              <p class="text-[10px] uppercase tracking-[0.3em] text-gold">Occasion</p>
+              <h3 class="mt-1 font-serif text-2xl text-neutral-50">Anniversary</h3>
+              <p class="mt-1 text-xs text-neutral-400">/collections/anniversary</p>
+            </div>
+          </a>
+        </div>
+
+        <!-- Admin explainer strip -->
+        <div class="mt-12 rounded-sm border border-gold/20 bg-ink p-6 text-center text-xs text-neutral-400">
+          <span class="text-gold">Admin Panel →</span> create a Collection (name · slug · cover ·
+          description · sort order · type) and it renders here automatically via
+          <code class="text-gold/80">collections.map()</code>.
+        </div>
+      </div>
+    </section>
+
+
+    <!--
+    ============================================================================================
+      SECTION 5 · SHOP ENTRY EXPLANATION  (Pre-filtered Product Listing)
+      ============================================================================================
+      WHY THIS EXISTS:
+        This section documents, visually, HOW a collection turns into a shop listing. The key idea
+        is the PRE-FILTERED PRODUCT LISTING: the customer never lands on an unfiltered catalog.
+        Choosing a collection is itself a filter that is applied AUTOMATICALLY.
+
+      THE FLOW:
+        Collection  →  Filter Applied  →  Shop Listing  →  Product Cards
+
+      HOW FILTERS AUTO-APPLY (routing mechanics):
+        Collection cards route to slugged URLs:
+          /collections/featured   → shop listing pre-filtered to collection "featured"
+          /collections/eid         → shop listing pre-filtered to collection "eid"
+          /collections/wedding     → shop listing pre-filtered to collection "wedding"
+        The `[slug]` param is read on the server, translated into a query
+        (WHERE collection.slug = params.slug AND stock > 0), and the grid renders ONLY those items.
+        Additional facet filters (metal, stone, price) become URL SEARCH PARAMS layered on top,
+        e.g. /collections/wedding?metal=gold&stone=diamond — shareable, bookmarkable, SSR-friendly.
+
+      NEXT.JS CONNECTION:
+        app/(store)/collections/[slug]/page.tsx
+          const { slug } = params;                 // the collection filter
+          const facets = searchParams;             // metal / stone / price refinements
+          const products = await getProducts({ collectionSlug: slug, ...facets });
+        Because filtering happens on the server, the FIRST paint is already filtered (great for SEO
+        and perceived speed) — no client-side "flash of all products".
+
+      INVENTORY CONNECTION:
+        `getProducts()` reads live stock from the Inventory System so sold-out pieces can be hidden
+        or badged, and facet counts ("Gold (12)") reflect real availability.
+    ============================================================================================
+    -->
+    <section id="shop-flow" class="mx-auto max-w-7xl px-6 py-24">
+      <div class="mb-14 text-center">
+        <p class="text-[11px] uppercase tracking-[0.35em] text-gold">Architecture</p>
+        <h2 class="mt-3 font-serif text-4xl text-neutral-100 md:text-5xl">From Collection to Product</h2>
+      </div>
+
+      <!-- VISUAL FLOW DIAGRAM (pure HTML/CSS, no images) -->
+      <div class="mx-auto flex max-w-3xl flex-col items-center gap-4">
+        <!-- Step 1 -->
+        <div class="w-full rounded-sm border border-gold/25 bg-ink-soft px-6 py-5 text-center">
+          <p class="text-[10px] uppercase tracking-[0.3em] text-gold">Step 1</p>
+          <p class="mt-1 font-serif text-xl text-neutral-100">Collection</p>
+          <p class="mt-1 text-xs text-neutral-500">User selects e.g. “Wedding” in the Hub</p>
+        </div>
+        <div class="text-gold text-2xl">&darr;</div>
+
+        <!-- Step 2 -->
+        <div class="w-full rounded-sm border border-gold/25 bg-ink-soft px-6 py-5 text-center">
+          <p class="text-[10px] uppercase tracking-[0.3em] text-gold">Step 2</p>
+          <p class="mt-1 font-serif text-xl text-neutral-100">Filter Applied</p>
+          <p class="mt-1 text-xs text-neutral-500">Route <code class="text-gold/80">/collections/wedding</code> auto-applies the filter</p>
+        </div>
+        <div class="text-gold text-2xl">&darr;</div>
+
+        <!-- Step 3 -->
+        <div class="w-full rounded-sm border border-gold/25 bg-ink-soft px-6 py-5 text-center">
+          <p class="text-[10px] uppercase tracking-[0.3em] text-gold">Step 3</p>
+          <p class="mt-1 font-serif text-xl text-neutral-100">Shop Listing</p>
+          <p class="mt-1 text-xs text-neutral-500">Server returns only in-stock wedding pieces</p>
+        </div>
+        <div class="text-gold text-2xl">&darr;</div>
+
+        <!-- Step 4 -->
+        <div class="w-full rounded-sm border border-gold/25 bg-ink-soft px-6 py-5 text-center">
+          <p class="text-[10px] uppercase tracking-[0.3em] text-gold">Step 4</p>
+          <p class="mt-1 font-serif text-xl text-neutral-100">Product Cards</p>
+          <p class="mt-1 text-xs text-neutral-500">Grid of pieces → each links to a Product Page</p>
+        </div>
+      </div>
+
+      <!-- Example route chips -->
+      <div class="mt-12 flex flex-wrap justify-center gap-3 text-xs">
+        <span class="rounded-full border border-gold/30 px-4 py-2 text-gold/90">/collections/featured</span>
+        <span class="rounded-full border border-gold/30 px-4 py-2 text-gold/90">/collections/eid</span>
+        <span class="rounded-full border border-gold/30 px-4 py-2 text-gold/90">/collections/wedding</span>
+        <span class="rounded-full border border-gold/30 px-4 py-2 text-gold/90">?metal=gold&amp;stone=diamond</span>
+      </div>
+
+      <!--
+        FILTERED SHOP + PRODUCT CARDS
+        --------------------------------------------------------------------------------------
+        A mini example of the pre-filtered listing (as it would appear at /collections/wedding).
+        The left rail = facet filters (metal/stone/price) which map to URL search params.
+        The right grid = product cards fed by getProducts({ collectionSlug, ...facets }).
+      -->
+      <div class="mt-20 grid grid-cols-1 gap-10 lg:grid-cols-4">
+
+        <!-- FACET FILTER RAIL (search params in production) -->
+        <aside class="lg:col-span-1">
+          <h3 class="font-serif text-lg text-neutral-100">Refine</h3>
+          <div class="hairline my-4 w-full"></div>
+
+          <!-- Each group would toggle a URL search param -->
+          <div class="space-y-6 text-sm text-neutral-400">
+            <div>
+              <p class="mb-2 text-[11px] uppercase tracking-[0.2em] text-gold">Metal</p>
+              <label class="flex items-center gap-2"><input type="checkbox" class="accent-gold"> Yellow Gold <span class="text-neutral-600">(12)</span></label>
+              <label class="flex items-center gap-2"><input type="checkbox" class="accent-gold"> White Gold <span class="text-neutral-600">(8)</span></label>
+              <label class="flex items-center gap-2"><input type="checkbox" class="accent-gold"> Rose Gold <span class="text-neutral-600">(5)</span></label>
+            </div>
+            <div>
+              <p class="mb-2 text-[11px] uppercase tracking-[0.2em] text-gold">Stone</p>
+              <label class="flex items-center gap-2"><input type="checkbox" class="accent-gold"> Diamond <span class="text-neutral-600">(15)</span></label>
+              <label class="flex items-center gap-2"><input type="checkbox" class="accent-gold"> Emerald <span class="text-neutral-600">(4)</span></label>
+              <label class="flex items-center gap-2"><input type="checkbox" class="accent-gold"> Pearl <span class="text-neutral-600">(6)</span></label>
+            </div>
+            <div>
+              <p class="mb-2 text-[11px] uppercase tracking-[0.2em] text-gold">Price</p>
+              <input type="range" class="w-full accent-gold" />
+              <p class="mt-1 text-xs text-neutral-500">AED 2,000 — 90,000</p>
+            </div>
+          </div>
+        </aside>
+
+        <!-- PRODUCT CARD GRID -->
+        <div class="lg:col-span-3">
+          <div class="mb-6 flex items-center justify-between">
+            <p class="text-sm text-neutral-400">Wedding Collection — <span class="text-gold">24 pieces</span></p>
+            <select class="border border-gold/20 bg-ink px-3 py-2 text-xs text-neutral-300">
+              <option>Sort: Curated</option>
+              <option>Price: Low to High</option>
+              <option>Newest</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-5 sm:grid-cols-3">
+            <!-- PRODUCT CARD (repeatable component `<ProductCard/>`) -->
+            <!-- In production each card is one product row from Inventory (name, price, image, stock) -->
+            <a href="#product" class="lux-card group block">
+              <div class="aspect-square overflow-hidden rounded-sm border border-gold/10 bg-ink-soft">
+                <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=600&q=80" alt="Aurora Ring" class="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+              </div>
+              <h4 class="mt-3 font-serif text-base text-neutral-100">Aurora Ring</h4>
+              <p class="text-xs text-gold">AED 14,500</p>
+            </a>
+
+            <a href="#product" class="lux-card group block">
+              <div class="aspect-square overflow-hidden rounded-sm border border-gold/10 bg-ink-soft">
+                <img src="https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?auto=format&fit=crop&w=600&q=80" alt="Celeste Necklace" class="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+              </div>
+              <h4 class="mt-3 font-serif text-base text-neutral-100">Celeste Necklace</h4>
+              <p class="text-xs text-gold">AED 28,900</p>
+            </a>
+
+            <a href="#product" class="lux-card group block">
+              <div class="aspect-square overflow-hidden rounded-sm border border-gold/10 bg-ink-soft">
+                <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80" alt="Lumière Earrings" class="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+              </div>
+              <h4 class="mt-3 font-serif text-base text-neutral-100">Lumi&egrave;re Earrings</h4>
+              <p class="text-xs text-gold">AED 9,750</p>
+            </a>
+
+            <a href="#product" class="lux-card group block">
+              <div class="aspect-square overflow-hidden rounded-sm border border-gold/10 bg-ink-soft">
+                <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=600&q=80" alt="Saphira Bracelet" class="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+              </div>
+              <h4 class="mt-3 font-serif text-base text-neutral-100">Saphira Bracelet</h4>
+              <p class="text-xs text-gold">AED 21,300</p>
+            </a>
+
+            <a href="#product" class="lux-card group block">
+              <div class="aspect-square overflow-hidden rounded-sm border border-gold/10 bg-ink-soft">
+                <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=600&q=80" alt="Étoile Ring" class="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+              </div>
+              <h4 class="mt-3 font-serif text-base text-neutral-100">&Eacute;toile Ring</h4>
+              <p class="text-xs text-gold">AED 17,600</p>
+            </a>
+
+            <a href="#product" class="lux-card group block">
+              <div class="aspect-square overflow-hidden rounded-sm border border-gold/10 bg-ink-soft">
+                <img src="https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=600&q=80" alt="Noor Pendant" class="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+              </div>
+              <h4 class="mt-3 font-serif text-base text-neutral-100">Noor Pendant</h4>
+              <p class="text-xs text-gold">AED 12,400</p>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!--
+    ============================================================================================
+      SECTION 6 · FILMORA COLLECTION  (Custom Editorial Landing)
+      ============================================================================================
+      WHY FILMORA IS DIFFERENT:
+        Filmora is the flagship. It is NOT rendered by the standard collection grid template.
+        It has a COMPLETELY CUSTOM LAYOUT and behaves like an editorial / lifestyle landing page —
+        storytelling first, product second. Think of it as a mini "magazine issue" for the house.
+
+      WHAT IT CAN CONTAIN:
+        - Storytelling copy (the narrative behind the collection)
+        - Full-bleed video and cinematic imagery
+        - Lifestyle photography (jewelry worn, in context, not on white)
+        - Layered luxury branding content (quotes, craftsmanship notes, artisan features)
+
+      NEXT.JS CONNECTION:
+        - Do NOT reuse `/collections/[slug]` for Filmora. Give it its OWN route:
+            app/(store)/filmora/page.tsx   → a bespoke, hand-built page component.
+        - This separation means designers can iterate on Filmora's art direction freely without
+          risking the reusable collection template that powers Eid/Wedding/etc.
+        - Content blocks (hero video, story sections, featured pieces) are CMS "page builder"
+          blocks so marketing can restructure the editorial without a deploy.
+
+      INVENTORY CONNECTION:
+        Even though the layout is editorial, the "Shop the Story" pieces still pull live product
+        + stock data from Inventory, so the story remains shoppable and never shows sold-out items.
+    ============================================================================================
+    -->
+    <section id="filmora" class="relative overflow-hidden">
+      <!-- Cinematic full-bleed hero -->
+      <div class="relative h-[80vh] w-full">
+        <div class="absolute inset-0 bg-cover bg-center"
+             style="background-image:url('https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=1920&q=80')"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-burgundy/90 via-ink/50 to-transparent"></div>
+        <div class="relative z-10 flex h-full max-w-7xl flex-col justify-center px-6">
+          <p class="text-[11px] uppercase tracking-[0.4em] text-gold">Flagship · Editorial</p>
+          <h2 class="mt-4 max-w-2xl font-serif text-5xl leading-tight text-neutral-50 md:text-7xl">
+            The Filmora Collection
+          </h2>
+          <p class="mt-6 max-w-lg font-serif text-xl italic text-neutral-200">
+            A cinematic study of light, gold, and the women who wear it.
+          </p>
+          <div class="mt-8">
+            <a href="#" class="inline-flex border border-gold px-8 py-4 text-xs uppercase tracking-[0.25em] text-gold transition hover:bg-gold hover:text-ink">
+              Enter the Story
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Editorial story block 1 (image + narrative) -->
+      <div class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 py-24 md:grid-cols-2">
+        <div class="order-2 md:order-1">
+          <p class="text-[11px] uppercase tracking-[0.35em] text-gold">Chapter I</p>
+          <h3 class="mt-3 font-serif text-4xl text-neutral-100">Crafted in Light</h3>
+          <p class="mt-5 leading-relaxed text-neutral-400">
+            This is where storytelling lives — a page-builder block of rich text and imagery, not a
+            product grid. Every paragraph, image, and video here is an editable CMS block, allowing
+            the house to publish a new "chapter" of the story like a fashion editorial.
+          </p>
+        </div>
+        <div class="order-1 md:order-2">
+          <img src="https://images.unsplash.com/photo-1573408301185-9146fe634ad0?auto=format&fit=crop&w=900&q=80" alt="Filmora editorial" class="w-full rounded-sm border border-gold/15 object-cover" />
+        </div>
+      </div>
+
+      <!-- Editorial "Shop the Story" strip (still inventory-driven) -->
+      <div class="mx-auto max-w-7xl px-6 pb-24">
+        <div class="mb-8 text-center">
+          <h3 class="font-serif text-3xl text-neutral-100">Shop the Story</h3>
+          <p class="mt-2 text-sm text-neutral-500">Editorial layout — live inventory beneath.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-5 md:grid-cols-4">
+          <a href="#product" class="lux-card group block">
+            <div class="aspect-square overflow-hidden rounded-sm border border-gold/10">
+              <img src="https://images.unsplash.com/photo-1602173574767-37ac01994b2a?auto=format&fit=crop&w=600&q=80" alt="piece" class="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+            </div>
+            <p class="mt-2 font-serif text-sm text-neutral-100">Filmora Ring I</p>
+          </a>
+          <a href="#product" class="lux-card group block">
+            <div class="aspect-square overflow-hidden rounded-sm border border-gold/10">
+              <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=600&q=80" alt="piece" class="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+            </div>
+            <p class="mt-2 font-serif text-sm text-neutral-100">Filmora Pendant</p>
+          </a>
+          <a href="#product" class="lux-card group block">
+            <div class="aspect-square overflow-hidden rounded-sm border border-gold/10">
+              <img src="https://images.unsplash.com/photo-1610694955371-d4a3e0ce4b52?auto=format&fit=crop&w=600&q=80" alt="piece" class="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+            </div>
+            <p class="mt-2 font-serif text-sm text-neutral-100">Filmora Earrings</p>
+          </a>
+          <a href="#product" class="lux-card group block">
+            <div class="aspect-square overflow-hidden rounded-sm border border-gold/10">
+              <img src="https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?auto=format&fit=crop&w=600&q=80" alt="piece" class="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+            </div>
+            <p class="mt-2 font-serif text-sm text-neutral-100">Filmora Bracelet</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+
+    <!--
+    ============================================================================================
+      PRODUCT PAGE (Step 6 of the journey)
+      ============================================================================================
+      WHY: The destination of every product card. Where desire converts to intent (add to cart).
+      NEXT.JS: app/(store)/products/[handle]/page.tsx — dynamic route by product handle/slug.
+      INVENTORY: price, variants (size/metal), and REAL-TIME STOCK come from the Inventory System.
+        Add-to-cart should RESERVE stock (optimistic) and validate at checkout to prevent oversell.
+      CMS: description, care notes, and imagery are content; specs come from Inventory.
+    ============================================================================================
+    -->
+    <section id="product" class="mx-auto max-w-7xl px-6 py-24">
+      <div class="grid grid-cols-1 gap-12 md:grid-cols-2">
+        <!-- Gallery -->
+        <div class="space-y-4">
+          <div class="aspect-square overflow-hidden rounded-sm border border-gold/15">
+            <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1000&q=80" alt="Aurora Ring" class="h-full w-full object-cover" />
+          </div>
+          <div class="grid grid-cols-4 gap-3">
+            <img src="https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?auto=format&fit=crop&w=300&q=80" class="aspect-square rounded-sm border border-gold/10 object-cover" alt="thumb" />
+            <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=300&q=80" class="aspect-square rounded-sm border border-gold/10 object-cover" alt="thumb" />
+            <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=300&q=80" class="aspect-square rounded-sm border border-gold/10 object-cover" alt="thumb" />
+            <img src="https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=300&q=80" class="aspect-square rounded-sm border border-gold/10 object-cover" alt="thumb" />
+          </div>
+        </div>
+
+        <!-- Details -->
+        <div>
+          <p class="text-[11px] uppercase tracking-[0.3em] text-gold">Featured · Wedding Collection</p>
+          <h1 class="mt-3 font-serif text-4xl text-neutral-50">Aurora Ring</h1>
+          <p class="mt-3 text-2xl text-gold">AED 14,500</p>
+
+          <!-- Live stock indicator (from Inventory System) -->
+          <p class="mt-4 inline-flex items-center gap-2 text-xs text-emerald-400">
+            <span class="h-2 w-2 rounded-full bg-emerald-400"></span> In stock — ready to ship
+          </p>
+
+          <div class="hairline my-8 w-full"></div>
+
+          <!-- Variant selectors (Inventory variants) -->
+          <div class="space-y-6">
+            <div>
+              <p class="mb-2 text-[11px] uppercase tracking-[0.2em] text-neutral-400">Metal</p>
+              <div class="flex gap-3">
+                <button class="border border-gold px-4 py-2 text-xs text-gold">Yellow Gold</button>
+                <button class="border border-gold/20 px-4 py-2 text-xs text-neutral-300 hover:border-gold">White Gold</button>
+                <button class="border border-gold/20 px-4 py-2 text-xs text-neutral-300 hover:border-gold">Rose Gold</button>
+              </div>
+            </div>
+            <div>
+              <p class="mb-2 text-[11px] uppercase tracking-[0.2em] text-neutral-400">Ring Size</p>
+              <select class="border border-gold/20 bg-ink px-4 py-2 text-sm text-neutral-200">
+                <option>Select size</option><option>50</option><option>52</option><option>54</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Add to cart → reserves inventory, updates cart state -->
+          <button class="mt-9 w-full bg-gold py-4 text-xs uppercase tracking-[0.25em] text-ink transition hover:bg-gold/90">
+            Add to Cart
+          </button>
+
+          <p class="mt-6 text-sm leading-relaxed text-neutral-400">
+            A CMS-authored description tells the piece's story, while specifications (carat, metal
+            purity, dimensions) are pulled directly from the Inventory record — a clean split of
+            marketing content vs. operational truth.
+          </p>
+        </div>
+      </div>
+    </section>
+
+
+    <!--
+    ============================================================================================
+      CART (Step 7 of the journey)
+      ============================================================================================
+      WHY: A calm, luxurious review step before checkout — no aggressive upsell.
+      NEXT.JS: cart state lives in a client store (Context/Zustand) or a server cart (cookie id).
+        Rendered as `app/(store)/cart/page.tsx` and/or a slide-over drawer component.
+      INVENTORY: on load, re-validate each line's stock + price; flag any changes before checkout.
+    ============================================================================================
+    -->
+    <section id="cart" class="border-t border-gold/10 bg-ink-soft/40 py-24">
+      <div class="mx-auto max-w-4xl px-6">
+        <h2 class="font-serif text-4xl text-neutral-100">Your Selection</h2>
+        <div class="hairline my-6 w-full"></div>
+
+        <!-- Cart line item -->
+        <div class="flex items-center gap-6 border-b border-gold/10 py-6">
+          <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=200&q=80" class="h-24 w-24 rounded-sm border border-gold/10 object-cover" alt="Aurora Ring" />
+          <div class="flex-1">
+            <h3 class="font-serif text-xl text-neutral-100">Aurora Ring</h3>
+            <p class="text-xs text-neutral-500">Yellow Gold · Size 52</p>
+          </div>
+          <div class="text-right">
+            <p class="text-gold">AED 14,500</p>
+            <button class="mt-1 text-[11px] uppercase tracking-wider text-neutral-500 hover:text-gold">Remove</button>
+          </div>
+        </div>
+
+        <!-- Cart line item -->
+        <div class="flex items-center gap-6 border-b border-gold/10 py-6">
+          <img src="https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?auto=format&fit=crop&w=200&q=80" class="h-24 w-24 rounded-sm border border-gold/10 object-cover" alt="Celeste Necklace" />
+          <div class="flex-1">
+            <h3 class="font-serif text-xl text-neutral-100">Celeste Necklace</h3>
+            <p class="text-xs text-neutral-500">White Gold</p>
+          </div>
+          <div class="text-right">
+            <p class="text-gold">AED 28,900</p>
+            <button class="mt-1 text-[11px] uppercase tracking-wider text-neutral-500 hover:text-gold">Remove</button>
+          </div>
+        </div>
+
+        <!-- Totals + checkout CTA -->
+        <div class="mt-8 flex items-center justify-between">
+          <p class="text-sm text-neutral-400">Subtotal</p>
+          <p class="font-serif text-2xl text-neutral-50">AED 43,400</p>
+        </div>
+        <a href="#checkout" class="mt-6 block w-full bg-gold py-4 text-center text-xs uppercase tracking-[0.25em] text-ink transition hover:bg-gold/90">
+          Proceed to Checkout
+        </a>
+      </div>
+    </section>
+
+
+    <!--
+    ============================================================================================
+      CHECKOUT (Step 8 · final step of the journey)
+      ============================================================================================
+      WHY: Keep it minimal and trustworthy — luxury buyers expect a concierge-grade, low-friction
+      finish. Gulf-market specifics: AED currency, Arabic/English support, local payment methods
+      (Apple Pay, Mada, Tabby/Tamara installments), address formats.
+      NEXT.JS: app/(store)/checkout/page.tsx — server actions handle order creation + payment intent.
+      INVENTORY: on submit, DECREMENT stock atomically and create the order; fail gracefully if a
+      reserved item sold out (rare, thanks to reservation on add-to-cart).
+    ============================================================================================
+    -->
+    <section id="checkout" class="mx-auto max-w-4xl px-6 py-24">
+      <h2 class="font-serif text-4xl text-neutral-100">Checkout</h2>
+      <div class="hairline my-6 w-full"></div>
+      <div class="grid grid-cols-1 gap-10 md:grid-cols-2">
+        <!-- Contact + shipping (RTL-ready for Arabic in production) -->
+        <form class="space-y-4">
+          <input placeholder="Full Name" class="w-full border border-gold/20 bg-ink px-4 py-3 text-sm text-neutral-100 placeholder-neutral-500 focus:border-gold focus:outline-none" />
+          <input placeholder="Email" class="w-full border border-gold/20 bg-ink px-4 py-3 text-sm text-neutral-100 placeholder-neutral-500 focus:border-gold focus:outline-none" />
+          <input placeholder="Phone (+971)" class="w-full border border-gold/20 bg-ink px-4 py-3 text-sm text-neutral-100 placeholder-neutral-500 focus:border-gold focus:outline-none" />
+          <input placeholder="Emirate / City" class="w-full border border-gold/20 bg-ink px-4 py-3 text-sm text-neutral-100 placeholder-neutral-500 focus:border-gold focus:outline-none" />
+          <input placeholder="Address" class="w-full border border-gold/20 bg-ink px-4 py-3 text-sm text-neutral-100 placeholder-neutral-500 focus:border-gold focus:outline-none" />
+        </form>
+        <!-- Order summary + payment -->
+        <div class="rounded-sm border border-gold/15 bg-ink-soft p-6">
+          <h3 class="font-serif text-xl text-neutral-100">Order Summary</h3>
+          <div class="mt-4 space-y-2 text-sm text-neutral-400">
+            <div class="flex justify-between"><span>Aurora Ring</span><span>AED 14,500</span></div>
+            <div class="flex justify-between"><span>Celeste Necklace</span><span>AED 28,900</span></div>
+            <div class="flex justify-between"><span>Shipping</span><span>Complimentary</span></div>
+          </div>
+          <div class="hairline my-4 w-full"></div>
+          <div class="flex justify-between text-neutral-100"><span>Total</span><span class="text-gold">AED 43,400</span></div>
+          <button class="mt-6 w-full bg-gold py-4 text-xs uppercase tracking-[0.25em] text-ink transition hover:bg-gold/90">
+            Pay Securely
+          </button>
+          <p class="mt-3 text-center text-[11px] text-neutral-500">Apple Pay · Mada · Tabby · Card</p>
+        </div>
+      </div>
+    </section>
+
+
+    <!--
+    ============================================================================================
+      SECTION 8 · FOOTER
+      ============================================================================================
+      WHY THE FOOTER IS HIDDEN ON THE LANDING SCREEN:
+        The footer is a utility/navigation surface (policies, contact, sitemap). On the ceremonial
+        landing screen it would (a) invite scrolling away from the single intended decision, and
+        (b) break the immersive full-bleed 100vh moment by revealing "website chrome". Like the
+        navbar, it belongs to the STORE layout only — it appears once the customer has entered.
+
+      NEXT.JS CONNECTION:
+        Lives in `app/(store)/layout.tsx` (rendered after {children}). The (landing) layout omits it.
+
+      CMS CONNECTION:
+        Footer columns (About, Contact, Social, Policies) are CMS-managed navigation groups so legal
+        can update policy links and marketing can update social handles without a deploy.
+    ============================================================================================
+    -->
+    <footer id="footer" class="border-t border-gold/15 bg-ink pt-20">
+      <div class="mx-auto grid max-w-7xl grid-cols-2 gap-10 px-6 md:grid-cols-4">
+        <!-- Brand column -->
+        <div>
+          <div class="text-gold-foil font-serif text-2xl tracking-[0.2em]">Maison d&rsquo;Or</div>
+          <p class="mt-4 text-sm leading-relaxed text-neutral-500">
+            A boutique jewelry house crafting heirlooms for the Gulf and beyond.
+          </p>
+        </div>
+        <!-- About -->
+        <div>
+          <h4 class="text-[11px] uppercase tracking-[0.25em] text-gold">About</h4>
+          <ul class="mt-4 space-y-2 text-sm text-neutral-400">
+            <li><a href="#" class="hover:text-gold">Our Story</a></li>
+            <li><a href="#" class="hover:text-gold">Craftsmanship</a></li>
+            <li><a href="#" class="hover:text-gold">Boutiques</a></li>
+            <li><a href="#" class="hover:text-gold">Bespoke</a></li>
+          </ul>
+        </div>
+        <!-- Contact -->
+        <div>
+          <h4 class="text-[11px] uppercase tracking-[0.25em] text-gold">Contact</h4>
+          <ul class="mt-4 space-y-2 text-sm text-neutral-400">
+            <li>Dubai · UAE</li>
+            <li><a href="#" class="hover:text-gold">concierge@maisondor.com</a></li>
+            <li>+971 4 000 0000</li>
+            <li><a href="#" class="hover:text-gold">Book an Appointment</a></li>
+          </ul>
+        </div>
+        <!-- Social + Policies -->
+        <div>
+          <h4 class="text-[11px] uppercase tracking-[0.25em] text-gold">Follow</h4>
+          <ul class="mt-4 space-y-2 text-sm text-neutral-400">
+            <li><a href="#" class="hover:text-gold">Instagram</a></li>
+            <li><a href="#" class="hover:text-gold">TikTok</a></li>
+            <li><a href="#" class="hover:text-gold">Pinterest</a></li>
+          </ul>
+          <h4 class="mt-6 text-[11px] uppercase tracking-[0.25em] text-gold">Policies</h4>
+          <ul class="mt-4 space-y-2 text-sm text-neutral-400">
+            <li><a href="#" class="hover:text-gold">Shipping &amp; Returns</a></li>
+            <li><a href="#" class="hover:text-gold">Privacy</a></li>
+            <li><a href="#" class="hover:text-gold">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-16 border-t border-gold/10 py-6 text-center text-[11px] text-neutral-600">
+        © 2026 Maison d&rsquo;Or · Crafted in the Gulf · Prototype Blueprint
+      </div>
+    </footer>
+
+
+    <!--
+    ============================================================================================
+      SECTION 9 · NEXT.JS ARCHITECTURE NOTES  (Documentation, rendered on-page for the team)
+      ============================================================================================
+      This is a human-readable rendering of the folder structure so non-code stakeholders can see
+      how the prototype maps to a real Next.js App Router project.
+    ============================================================================================
+    -->
+    <section class="border-t border-gold/10 bg-ink-soft/40 py-24">
+      <div class="mx-auto max-w-4xl px-6">
+        <p class="text-[11px] uppercase tracking-[0.35em] text-gold">Documentation</p>
+        <h2 class="mt-3 font-serif text-4xl text-neutral-100">Next.js Architecture</h2>
+        <p class="mt-4 text-sm text-neutral-400">
+          Two layouts (landing & store) via ROUTE GROUPS; dynamic routes for collections & products.
+        </p>
+
+        <!-- Folder tree -->
+        <pre class="mt-8 overflow-x-auto rounded-sm border border-gold/15 bg-ink p-6 text-xs leading-relaxed text-neutral-300">
+app/
+├── (landing)/                # Route group · BARE layout (NO navbar/footer) → immersive brand
+│   ├── layout.tsx            #   renders only {children} + &lt;BrandLoader/&gt;
+│   └── page.tsx              #   Section 2 · fullscreen 100vh hero, two CTAs
+│
+├── (store)/                  # Route group · STORE layout (Navbar + Footer + Cart)
+│   ├── layout.tsx            #   &lt;Navbar/&gt; {children} &lt;Footer/&gt;  ← the "chrome appears" mechanism
+│   │
+│   ├── collections/          # Section 3 & 4 · Collection Hub + dynamic collections
+│   │   ├── page.tsx          #   the Hub — lists all collections from CMS
+│   │   └── [slug]/           #   Section 5 · DYNAMIC route → pre-filtered shop
+│   │       └── page.tsx      #   getProducts({ collectionSlug: slug, ...searchParams })
+│   │
+│   ├── filmora/              # Section 6 · BESPOKE editorial page (its own custom layout)
+│   │   └── page.tsx          #   NOT the [slug] template — hand-built art direction
+│   │
+│   ├── products/             # Product detail
+│   │   └── [handle]/         #   DYNAMIC route by product handle
+│   │       └── page.tsx      #   gallery + variants + live stock + add-to-cart
+│   │
+│   ├── cart/                 # Step 7 · cart review (page or slide-over drawer)
+│   │   └── page.tsx
+│   │
+│   └── checkout/             # Step 8 · checkout (server actions + payment intent)
+│       └── page.tsx
+│
+├── api/ (or /lib server)     # getCollections(), getProducts(), createOrder() → CMS + Inventory
+└── globals.css               # brand tokens (this file's &lt;style&gt; + tailwind theme)
+        </pre>
+
+        <!-- Folder explanations -->
+        <div class="mt-8 space-y-4 text-sm text-neutral-400">
+          <p><span class="text-gold">(landing)</span> — a route group (parentheses = no URL segment). Its layout has NO chrome, producing the immersive brand threshold. This is WHY the navbar/footer are absent on the first screen.</p>
+          <p><span class="text-gold">(store)</span> — the second layout. Its layout.tsx wraps children in Navbar + Footer, so every page under it automatically gains the shopping chrome. Crossing from (landing) to (store) swaps layouts = "the store appears".</p>
+          <p><span class="text-gold">collections/</span> — the Hub (Section 3) plus <code class="text-gold/80">[slug]</code> dynamic pages (Sections 4–5). New CMS collections become new URLs with zero code.</p>
+          <p><span class="text-gold">filmora/</span> — deliberately separate from <code class="text-gold/80">[slug]</code> so the flagship keeps its bespoke editorial layout (Section 6).</p>
+          <p><span class="text-gold">products/[handle]/</span> — product detail; specs + stock from Inventory, story from CMS.</p>
+          <p><span class="text-gold">checkout/</span> — final conversion; server actions decrement stock and create the order.</p>
+        </div>
+      </div>
+    </section>
+
+
+    <!--
+    ============================================================================================
+      SECTION 10 · INVENTORY CONNECTION  (Data Model Documentation)
+      ============================================================================================
+      HOW THE ADMIN PANEL CONTROLS EVERYTHING:
+        The Admin Panel is the single control surface. Merchandisers manage inventory items and
+        assign them to collections/campaigns/occasions and toggle the featured flag. The storefront
+        is a pure READER of this data — it never hardcodes catalog structure.
+
+      CORE ENTITIES & RELATIONSHIPS:
+        InventoryItem (the operational truth of a physical product)
+          id, name, handle, sku, price, currency(AED), metal, stone, carat,
+          stockQuantity, images[], isPublished
+          → stockQuantity drives "in stock / sold out" everywhere.
+
+        Collection (Section 4 — CMS-created grouping)
+          id, name, slug, coverImage, description, sortOrder, type, publishWindow
+          ⇄ InventoryItem : MANY-TO-MANY via `collection_products` join table.
+
+        Campaign (a TYPE of collection: Eid, Ramadan, National Day — often time-boxed)
+          Same shape as Collection with type='campaign' + start/end dates for auto scheduling.
+
+        Occasion (a TYPE of collection: Wedding, Anniversary, Mother's Day)
+          type='occasion'; enables the "shopping for a moment" journey.
+
+        Featured Flag
+          A boolean on InventoryItem (isFeatured) OR membership in the 'featured' collection.
+          Powers homepage/Hub spotlights without a full collection setup.
+
+      RELATIONSHIP SUMMARY (rendered below for the team).
+    ============================================================================================
+    -->
+    <section class="mx-auto max-w-5xl px-6 py-24">
+      <p class="text-[11px] uppercase tracking-[0.35em] text-gold">Documentation</p>
+      <h2 class="mt-3 font-serif text-4xl text-neutral-100">Inventory &amp; Data Model</h2>
+      <p class="mt-4 text-sm text-neutral-400">
+        The Admin Panel controls everything; the storefront only reads. Relationships below.
+      </p>
+
+      <!-- Relationship diagram (HTML boxes) -->
+      <div class="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div class="rounded-sm border border-gold/25 bg-ink-soft p-6">
+          <h3 class="font-serif text-xl text-gold">InventoryItem</h3>
+          <ul class="mt-3 space-y-1 text-xs text-neutral-400">
+            <li>id · name · handle · sku</li>
+            <li>price · currency (AED)</li>
+            <li>metal · stone · carat</li>
+            <li>stockQuantity</li>
+            <li>isFeatured (flag)</li>
+            <li>isPublished</li>
+          </ul>
+        </div>
+        <div class="rounded-sm border border-gold/25 bg-ink-soft p-6">
+          <h3 class="font-serif text-xl text-gold">Collection</h3>
+          <ul class="mt-3 space-y-1 text-xs text-neutral-400">
+            <li>id · name · slug</li>
+            <li>coverImage · description</li>
+            <li>sortOrder</li>
+            <li>type: featured | campaign | occasion</li>
+            <li>publishWindow (start/end)</li>
+          </ul>
+        </div>
+        <div class="rounded-sm border border-gold/25 bg-ink-soft p-6">
+          <h3 class="font-serif text-xl text-gold">collection_products</h3>
+          <ul class="mt-3 space-y-1 text-xs text-neutral-400">
+            <li>collection_id (FK)</li>
+            <li>product_id (FK)</li>
+            <li>position (sort within collection)</li>
+            <li class="text-gold/70">↳ MANY-TO-MANY join table</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Relationship legend -->
+      <div class="mt-8 rounded-sm border border-gold/15 bg-ink p-6 text-sm text-neutral-400">
+        <p><span class="text-gold">One</span> InventoryItem can belong to <span class="text-gold">many</span> Collections (Featured + Eid + Wedding simultaneously).</p>
+        <p class="mt-2"><span class="text-gold">Campaign</span> &amp; <span class="text-gold">Occasion</span> are just Collections with a <code class="text-gold/80">type</code> — same table, different behavior/scheduling.</p>
+        <p class="mt-2"><span class="text-gold">Featured</span> = a boolean flag for quick spotlights, or the 'featured' collection for a curated edit.</p>
+        <p class="mt-2">Storefront queries: <code class="text-gold/80">getProducts({'{'} collectionSlug, inStockOnly: true {'}'})</code> → always live, never hardcoded.</p>
+      </div>
+    </section>
+
+
+    <!--
+    ============================================================================================
+      SECTION 11 · FUTURE ENHANCEMENTS  (Roadmap comment block, also rendered for the team)
+      ============================================================================================
+      The following is a forward-looking roadmap. None of it is required for the prototype, but the
+      architecture above (route groups, dynamic collections, inventory-as-source-of-truth) is
+      deliberately designed so these can be layered in WITHOUT re-architecting.
+
+        • GSAP ANIMATIONS
+            Scroll-triggered reveals, pinned editorial sections (Filmora), and the loader's
+            ceremonial timeline. GSAP's ScrollTrigger pairs well with the editorial storytelling.
+
+        • PAGE TRANSITIONS
+            Smooth cross-fades / shared-element transitions between Hub → Collection → Product using
+            the Next.js View Transitions API (or a library) so navigation feels cinematic, not abrupt.
+
+        • FRAMER MOTION
+            Component-level micro-interactions: card hover lifts, CTA magnetism, cart drawer springs.
+            Great for React islands inside the (store) layout.
+
+        • VIDEO BACKGROUNDS
+            Replace the hero poster with adaptive-bitrate (HLS) video; lazy, connection-aware,
+            reduced-motion respectful. Filmora chapters can each have their own cinematic loop.
+
+        • DYNAMIC CMS
+            Move ALL content (hero copy, collections, editorial blocks, nav, footer, theme tokens)
+            into a headless CMS (Sanity / Payload / Strapi) with webhook-triggered ISR revalidation.
+
+        • AI RECOMMENDATIONS
+            "Complete the look" and "You may also love" powered by embeddings over the catalog +
+            behavioral signals; surfaced on Product and Cart pages. Feeds from the Inventory data.
+
+        • LUXURY STORYTELLING EXPERIENCES
+            Interactive craftsmanship timelines, 3D/AR try-on for rings, appointment booking flows,
+            and personalized "your house" concierge accounts — all consuming the same data model.
+    ============================================================================================
+    -->
+    <section class="border-t border-gold/10 bg-ink py-24">
+      <div class="mx-auto max-w-4xl px-6">
+        <p class="text-[11px] uppercase tracking-[0.35em] text-gold">Roadmap</p>
+        <h2 class="mt-3 font-serif text-4xl text-neutral-100">Future Enhancements</h2>
+        <div class="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div class="rounded-sm border border-gold/15 bg-ink-soft p-6"><h3 class="font-serif text-lg text-gold">GSAP Animations</h3><p class="mt-2 text-sm text-neutral-400">Scroll-triggered reveals & the loader's ceremonial timeline.</p></div>
+          <div class="rounded-sm border border-gold/15 bg-ink-soft p-6"><h3 class="font-serif text-lg text-gold">Page Transitions</h3><p class="mt-2 text-sm text-neutral-400">Cinematic cross-fades between Hub → Collection → Product.</p></div>
+          <div class="rounded-sm border border-gold/15 bg-ink-soft p-6"><h3 class="font-serif text-lg text-gold">Framer Motion</h3><p class="mt-2 text-sm text-neutral-400">Micro-interactions: hover lifts, cart drawer springs.</p></div>
+          <div class="rounded-sm border border-gold/15 bg-ink-soft p-6"><h3 class="font-serif text-lg text-gold">Video Backgrounds</h3><p class="mt-2 text-sm text-neutral-400">Adaptive HLS hero loops, reduced-motion aware.</p></div>
+          <div class="rounded-sm border border-gold/15 bg-ink-soft p-6"><h3 class="font-serif text-lg text-gold">Dynamic CMS</h3><p class="mt-2 text-sm text-neutral-400">Headless CMS + webhook ISR for all content & tokens.</p></div>
+          <div class="rounded-sm border border-gold/15 bg-ink-soft p-6"><h3 class="font-serif text-lg text-gold">AI Recommendations</h3><p class="mt-2 text-sm text-neutral-400">“Complete the look” via catalog embeddings.</p></div>
+          <div class="rounded-sm border border-gold/15 bg-ink-soft p-6 sm:col-span-2"><h3 class="font-serif text-lg text-gold">Luxury Storytelling</h3><p class="mt-2 text-sm text-neutral-400">AR try-on, craftsmanship timelines, concierge accounts — all on the same data model.</p></div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /#store -->
+
+
+  <!--
+  ================================================================================================
+    PROTOTYPE-ONLY JAVASCRIPT
+    ================================================================================================
+    IMPORTANT: This vanilla JS exists ONLY to make the static blueprint clickable so reviewers can
+    experience the flow (loader → landing → store). In the real product ALL of this is replaced by
+    Next.js routing + React state + layout route groups. Nothing here ships to production.
+  ================================================================================================
+  -->
+  <script>
+    // --------------------------------------------------------------------------------------------
+    // LOADER CONTROL  ← (Section 1) In production, replace this timeout with real readiness checks:
+    //   await Promise.all([document.fonts.ready, videoCanPlayThrough, minDisplayTime]).then(hide)
+    // Also gate the FULL ceremony on first visit via localStorage.
+    // --------------------------------------------------------------------------------------------
+    window.addEventListener('load', function () {
+      var loader = document.getElementById('brand-loader');
+      // Simulate asset/video/font preloading with a short ceremonial minimum display time.
+      setTimeout(function () {
+        loader.classList.add('is-hidden');
+      }, 1800);
+    });
+
+    // --------------------------------------------------------------------------------------------
+    // LANDING → STORE TRANSITION  ← (Sections 2 & 7)
+    // Clicking "Explore Collections" hides the landing screen and reveals the STORE experience
+    // (which is where the navbar + footer live). In Next.js this is simply <Link href="/collections">
+    // crossing from the (landing) route group into the (store) route group — the layout swap does
+    // the reveal for you; no manual show/hide needed.
+    // --------------------------------------------------------------------------------------------
+    document.querySelectorAll('[data-enter-store]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.getElementById('landing').classList.add('is-hidden');
+        var store = document.getElementById('store');
+        store.classList.remove('is-hidden');
+        // Jump to the Collection Hub — the first store screen.
+        setTimeout(function () {
+          document.getElementById('collection-hub').scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      });
+    });
+
+    // --------------------------------------------------------------------------------------------
+    // STORE → LANDING (brand mark click) — returns to the ceremonial threshold (prototype nicety).
+    // --------------------------------------------------------------------------------------------
+    document.querySelectorAll('[data-back-landing]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.getElementById('store').classList.add('is-hidden');
+        document.getElementById('landing').classList.remove('is-hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+  </script>
+</body>
+</html>
